@@ -7,13 +7,19 @@
       "title": "LifeX-PHCS",
       "body": "So I enrolled in what seemed ike a good health insurance plan and was reassured by the agent that the lawsuit from July was only to do with not having permission to use Anthem/BCBS logos on their card. I was reassured multiple times that this insurance was legit and there are providers available inn my area (Birmingham, AL). Well now, I am pregnant and I cannot find a facility that is in network. There are many providers listed on their provider search but every place I call is so confused and can't even complete an eligibility check. I called LifeX...they told me to say Multiplan PHCS when asking about in-network coverage...I do that...same results. Did I just get scammed??? LifeX also requested I fill out an I-9 and W-4...but for what???? There is no clear answers on anything and now the agent I purchased from has ghosted every text message I send him. What do I do now?? Did I really get scammed?\n\n",
       "author": "Otherwise-Prize-3442",
-      "score": 80,
-      "label": "positive",
+      "score": 1,
+      "label": "negative",
       "confidence": 0.7,
       "createdUtc": "2025-09-09T14:09:26.000Z",
       "permalink": "/r/HealthInsurance/comments/1ncjyay/lifexphcs/",
       "ignored": false,
-      "numComments": 3
+      "numComments": 3,
+      "manualLabel": "negative",
+      "manualScore": 1,
+      "taggedBy": "user",
+      "taggedAt": "2025-09-11T02:42:57.424Z",
+      "urgent": true,
+      "urgentAt": "2025-09-11T02:49:08.645Z"
     },
     {
       "id": "t3_1naa9dp",
@@ -27,8 +33,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-09-06T20:42:50.000Z",
       "permalink": "/r/ChatETF/comments/1naa9dp/etf_industry_news_sep_15_2025/",
-      "ignored": false,
-      "numComments": 0
+      "ignored": true,
+      "numComments": 0,
+      "ignoredAt": "2025-09-11T02:41:30.214Z"
     },
     {
       "id": "t3_1naa8sk",
@@ -42,8 +49,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-09-06T20:42:09.000Z",
       "permalink": "/r/ETFs/comments/1naa8sk/etf_weekly_industry_updates_sep_15_2025/",
-      "ignored": false,
-      "numComments": 2
+      "ignored": true,
+      "numComments": 2,
+      "ignoredAt": "2025-09-11T02:42:47.446Z"
     },
     {
       "id": "t3_1n9qltb",
@@ -57,8 +65,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-09-06T04:41:55.000Z",
       "permalink": "/r/u_Chance-Leader-2852/comments/1n9qltb/special_hot_wheels/",
-      "ignored": false,
-      "numComments": 0
+      "ignored": true,
+      "numComments": 0,
+      "ignoredAt": "2025-09-11T02:42:50.539Z"
     },
     {
       "id": "t3_1mzptyu",
@@ -72,8 +81,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-08-25T13:00:31.000Z",
       "permalink": "/r/comicbookcollecting/comments/1mzptyu/mark_bagley/",
-      "ignored": false,
-      "numComments": 5
+      "ignored": true,
+      "numComments": 5,
+      "ignoredAt": "2025-09-11T02:41:37.567Z"
     },
     {
       "id": "t3_1msc49d",
@@ -82,13 +92,17 @@
       "title": "New York health insurance help",
       "body": "I was a student, and was out in NYS Health Insurance through the market place. It auto renewed for 5 years. I am no longer eligible, and not even for a tax credit. I may need to pay between $600-$800 a month for the most simple / terrible (I hear) insurance, Healthfirst. \n\nHas anybody else had a situation like this? If so, how did you handle it? Luckily I am considered a small business and I can write off my healthcare premiums. But still $700 a month is a burden. For something that I barely use. I would love some feedback and suggestions! LIFEX contacted me but I read on this thread that they're a scam. ",
       "author": "CodCheap9332",
-      "score": 50,
-      "label": "neutral",
+      "score": 1,
+      "label": "negative",
       "confidence": 0.5,
       "createdUtc": "2025-08-17T00:00:17.000Z",
       "permalink": "/r/HealthInsurance/comments/1msc49d/new_york_health_insurance_help/",
       "ignored": false,
-      "numComments": 10
+      "numComments": 10,
+      "manualLabel": "negative",
+      "manualScore": 1,
+      "taggedBy": "user",
+      "taggedAt": "2025-09-11T02:43:09.632Z"
     },
     {
       "id": "t3_1mo3a8c",
@@ -102,8 +116,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-08-12T08:39:47.000Z",
       "permalink": "/r/DeoVR/comments/1mo3a8c/monetization_rejection_reason/",
-      "ignored": false,
-      "numComments": 2
+      "ignored": true,
+      "numComments": 2,
+      "ignoredAt": "2025-09-11T02:41:49.889Z"
     },
     {
       "id": "t3_1m92qug",
@@ -117,8 +132,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-07-25T15:48:40.000Z",
       "permalink": "/r/xToolOfficial/comments/1m92qug/xtool_on_the_road_upcoming_events_demos_augsept/",
-      "ignored": false,
-      "numComments": 2
+      "ignored": true,
+      "numComments": 2,
+      "ignoredAt": "2025-09-11T02:41:56.169Z"
     },
     {
       "id": "t3_1m7p6vp",
@@ -132,8 +148,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-07-23T23:49:52.000Z",
       "permalink": "/r/HumanTorchMains/comments/1m7p6vp/one_of_my_better_torch_games_even_though_i_lost/",
-      "ignored": false,
-      "numComments": 0
+      "ignored": true,
+      "numComments": 0,
+      "ignoredAt": "2025-09-11T02:43:15.932Z"
     },
     {
       "id": "t3_1m2zgct",
@@ -147,8 +164,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-07-18T11:09:18.000Z",
       "permalink": "/r/edgar_news/comments/1m2zgct/porter_white_investment_advisors_inc/",
-      "ignored": false,
-      "numComments": 0
+      "ignored": true,
+      "numComments": 0,
+      "ignoredAt": "2025-09-11T02:41:15.341Z"
     },
     {
       "id": "t3_1m2ta2k",
@@ -172,13 +190,17 @@
       "title": "LifeX is being sued by Elevance Health, Anthem Insurance and Blue Cross and Blue Shield Association",
       "body": "The companies allege that LifeX \n\n&gt; As part of a scheme to\ninduce consumers to purchase health insurance through an alleged employee\nbenefit plan, LifeX has willfully and improperly used AIC’s ANTHEM mark and\nBCBSA’s BLUECARD®, BLUE CROSS® and BLUE SHIELD® word marks\nand logos (the “BCBS Marks”) in blatant violation of Plaintiffs’ trademark rights.\nCase 1:25-cv-03590-WMR Document 1 Filed 06/27/25 Page 1 of 42\n2\nSpecifically, LifeX affixed Plaintiffs’ trademarks to counterfeit health insurance\ncards and marketing materials, falsely representing itself as an authorized client\nand group policy holder of Anthem Blue Cross and Blue Shield (“Anthem BCBS”)\nhealth insurance – without Plaintiffs’ knowledge, authorization or consent.\nDefendants’ misuse of Plaintiffs’ trademarks is a deliberate fraud on consumers.\nLifeX does not maintain any employee benefit plan with Anthem and is not\naffiliated with Plaintiffs in any way. By misrepresenting this relationship,\nDefendants are deceiving unsuspecting purchasers of health insurance and health\ncare providers alike, placing the public at significant risk. Consumers purchasing\nthis so-called benefits plan from LifeX will not receive the health insurance\n\n\ncoverage that they believed they purchased because LifeX has no actual\nrelationship with Plaintiffs and no authority to offer benefits under or related to an\nAnthem BCBS plan. Indeed, LifeX is willfully selling consumers an employee\nbenefits health insurance plan that does not exist. \n\nI've never posted here before, I stumbles on this case when reading the latest Courtwatch newsletter and saw they referred to [this post](https://www.reddit.com/r/HealthInsurance/comments/1jpop3e/lifex_research_coreanthem_ppo/) and figured people here should be made aware of the lawsuit.",
       "author": "rx915",
-      "score": 50,
-      "label": "neutral",
+      "score": 1,
+      "label": "negative",
       "confidence": 0.5,
       "createdUtc": "2025-07-04T13:50:33.000Z",
       "permalink": "/r/HealthInsurance/comments/1lrj8m4/lifex_is_being_sued_by_elevance_health_anthem/",
       "ignored": false,
-      "numComments": 21
+      "numComments": 21,
+      "manualLabel": "negative",
+      "manualScore": 1,
+      "taggedBy": "user",
+      "taggedAt": "2025-09-11T02:44:02.812Z"
     },
     {
       "id": "t3_1lmw1pv",
@@ -207,8 +229,9 @@
       "confidence": 0.7,
       "createdUtc": "2025-06-18T15:32:56.000Z",
       "permalink": "/r/Hardcore/comments/1lek5my/any_louisville_hardcorepunk_forum_veterans_on_here/",
-      "ignored": false,
-      "numComments": 9
+      "ignored": true,
+      "numComments": 9,
+      "ignoredAt": "2025-09-11T02:42:19.392Z"
     },
     {
       "id": "t3_1lax5qi",
@@ -222,8 +245,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-06-14T01:52:03.000Z",
       "permalink": "/r/investimentos/comments/1lax5qi/investindo_no_exterior/",
-      "ignored": false,
-      "numComments": 2
+      "ignored": true,
+      "numComments": 2,
+      "ignoredAt": "2025-09-11T02:51:28.319Z"
     },
     {
       "id": "t3_1l7um6y",
@@ -237,8 +261,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-06-10T09:47:20.000Z",
       "permalink": "/r/UFOB_Disclosures/comments/1l7um6y/utoxictoy_unbanned_a_user_from_rufob/",
-      "ignored": false,
-      "numComments": 0
+      "ignored": true,
+      "numComments": 0,
+      "ignoredAt": "2025-09-11T02:42:27.164Z"
     },
     {
       "id": "t3_1l48j7f",
@@ -252,8 +277,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-06-05T19:41:01.000Z",
       "permalink": "/r/BreakUps/comments/1l48j7f/couldnt_even_breath_properly_without_her/",
-      "ignored": false,
-      "numComments": 2
+      "ignored": true,
+      "numComments": 2,
+      "ignoredAt": "2025-09-11T02:51:33.176Z"
     },
     {
       "id": "t3_1l3sq93",
@@ -267,8 +293,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-06-05T07:01:25.000Z",
       "permalink": "/r/Silksong/comments/1l3sq93/remember_when_xbox_randomly_hinted_at_silksong/",
-      "ignored": false,
-      "numComments": 10
+      "ignored": true,
+      "numComments": 10,
+      "ignoredAt": "2025-09-11T02:42:30.512Z"
     },
     {
       "id": "t3_1l2sfol",
@@ -282,8 +309,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-06-04T00:50:15.000Z",
       "permalink": "/r/Jackery/comments/1l2sfol/jackery_1000_plus_test_refrigerator_tv_cpap_and/",
-      "ignored": false,
-      "numComments": 7
+      "ignored": true,
+      "numComments": 7,
+      "ignoredAt": "2025-09-11T02:51:36.227Z"
     },
     {
       "id": "t3_1kyel7s",
@@ -297,8 +325,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-05-29T16:03:58.000Z",
       "permalink": "/r/KaynMains/comments/1kyel7s/coming_back_to_kayn_i_feel_useless/",
-      "ignored": false,
-      "numComments": 6
+      "ignored": true,
+      "numComments": 6,
+      "ignoredAt": "2025-09-11T02:42:33.645Z"
     },
     {
       "id": "t3_1kwj7i5",
@@ -312,8 +341,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-05-27T09:46:21.000Z",
       "permalink": "/r/UFOB_Disclosures/comments/1kwj7i5/utoxictoy_banned_a_user_from_rufob/",
-      "ignored": false,
-      "numComments": 0
+      "ignored": true,
+      "numComments": 0,
+      "ignoredAt": "2025-09-11T02:44:50.235Z"
     },
     {
       "id": "t3_1ksbmxj",
@@ -342,8 +372,9 @@
       "confidence": 0.7,
       "createdUtc": "2025-05-16T12:59:59.000Z",
       "permalink": "/r/HelloSweetDaysEn/comments/1ko08ms/dlf_sc_ssr_tears_lips_hair/",
-      "ignored": false,
-      "numComments": 0
+      "ignored": true,
+      "numComments": 0,
+      "ignoredAt": "2025-09-11T02:42:38.275Z"
     },
     {
       "id": "t3_1kljpgr",
@@ -357,8 +388,9 @@
       "confidence": 0.5,
       "createdUtc": "2025-05-13T11:39:43.000Z",
       "permalink": "/r/askberliners/comments/1kljpgr/moving_to_berlin_anyone_here_lived_in_lifex/",
-      "ignored": false,
-      "numComments": 8
+      "ignored": true,
+      "numComments": 8,
+      "ignoredAt": "2025-09-11T02:44:54.312Z"
     },
     {
       "id": "t3_1kj951v",
@@ -372,8 +404,9 @@
       "confidence": 0.7,
       "createdUtc": "2025-05-10T12:29:15.000Z",
       "permalink": "/r/askberliners/comments/1kj951v/any_experiences_living_at_lifex_berlin/",
-      "ignored": false,
-      "numComments": 2
+      "ignored": true,
+      "numComments": 2,
+      "ignoredAt": "2025-09-11T02:45:46.839Z"
     },
     {
       "id": "t3_1jpop3e",
@@ -382,13 +415,17 @@
       "title": "LifeX research core/Anthem PPO",
       "body": "An insurance agent is trying to sell me on a plan that includes joining the lifeX research corp as an employee to just fill out surveys… And the coverage for medical insurance is through anthem PPO. Coverage is around $500 a month with $1000 deductible, and it's only a $250 co-pay to give birth. It seems too good to be true… And I can't find any information online, does anyone have any experience with this company?",
       "author": "Coffee-lover_2660",
-      "score": 80,
-      "label": "positive",
+      "score": 1,
+      "label": "negative",
       "confidence": 0.7,
       "createdUtc": "2025-04-02T13:35:19.000Z",
       "permalink": "/r/HealthInsurance/comments/1jpop3e/lifex_research_coreanthem_ppo/",
       "ignored": false,
-      "numComments": 146
+      "numComments": 146,
+      "manualLabel": "negative",
+      "manualScore": 1,
+      "taggedBy": "user",
+      "taggedAt": "2025-09-11T02:44:59.152Z"
     },
     {
       "id": "t3_1jefsek",
@@ -397,13 +434,17 @@
       "title": "Scam?",
       "body": "This is a little too late kind of question. \n\nBasically, I am switching jobs and will need to buy my own insurance. I’m planning on getting pregnant and in my state, I do not have any marketplace plans that will cover maternity related things. I went through an agent and was told me that I can get a private plan and it’d be a Cigna PPO network. Everything sounded decent until I got the paperwork for it and it kept talking about lifeX and kmg. I called him and he said that the plan is through KMG by being a minority employer of lifeX research coperation. Apparently, this is a totally legit thing to do per the broker/agent. \n\nHave anyone ever heard of this? Is this really legit? \n\nUnfortunately I already gave out all mine and family info before I knew about the whole lifeX and kmg thing. I thought I was just signing up for Cigna PPO but apparently KMG owns the plan and uses Cigna’s network. \n\nUgh idk what to do. \n\nThoughts? Advice? ",
       "author": "Dull-Win-7296",
-      "score": 50,
-      "label": "neutral",
+      "score": 1,
+      "label": "negative",
       "confidence": 0.5,
       "createdUtc": "2025-03-18T20:59:51.000Z",
       "permalink": "/r/HealthInsurance/comments/1jefsek/scam/",
       "ignored": false,
-      "numComments": 18
+      "numComments": 18,
+      "manualLabel": "negative",
+      "manualScore": 1,
+      "taggedBy": "user",
+      "taggedAt": "2025-09-11T02:45:06.578Z"
     },
     {
       "id": "t3_1efh3gu",
@@ -417,8 +458,9 @@
       "confidence": 0.7,
       "createdUtc": "2024-07-30T01:35:57.000Z",
       "permalink": "/r/ClerithKingdom/comments/1efh3gu/light_and_darknessfrom_rclerith/",
-      "ignored": false,
-      "numComments": 3
+      "ignored": true,
+      "numComments": 3,
+      "ignoredAt": "2025-09-11T02:45:10.519Z"
     },
     {
       "id": "t3_uwn7kj",
@@ -432,8 +474,9 @@
       "confidence": 0.7,
       "createdUtc": "2022-05-24T09:57:47.000Z",
       "permalink": "/r/Whitelist_Airdrop/comments/uwn7kj/obelisk_protocol_whitelist_campaign_is_open_now/",
-      "ignored": false,
-      "numComments": 0
+      "ignored": true,
+      "numComments": 0,
+      "ignoredAt": "2025-09-11T02:45:19.206Z"
     },
     {
       "id": "t3_azyox3",
@@ -447,17 +490,113 @@
       "confidence": 0.7,
       "createdUtc": "2019-03-11T20:58:44.000Z",
       "permalink": "/r/longevity/comments/azyox3/lifex_an_instagram_sharing_longevity_research_news/",
-      "ignored": false,
-      "numComments": 2
+      "ignored": true,
+      "numComments": 2,
+      "ignoredAt": "2025-09-11T02:45:15.567Z"
     }
   ],
   "stats": {
-    "negative": 1,
-    "neutral": 21,
-    "positive": 8
+    "negative": 6,
+    "neutral": 18,
+    "positive": 6
   },
-  "averageScore": 58,
+  "averageScore": 48.166666666666664,
   "topNegative": [
+    {
+      "id": "t3_1ncjyay",
+      "type": "post",
+      "subreddit": "HealthInsurance",
+      "title": "LifeX-PHCS",
+      "body": "So I enrolled in what seemed ike a good health insurance plan and was reassured by the agent that the lawsuit from July was only to do with not having permission to use Anthem/BCBS logos on their card. I was reassured multiple times that this insurance was legit and there are providers available inn my area (Birmingham, AL). Well now, I am pregnant and I cannot find a facility that is in network. There are many providers listed on their provider search but every place I call is so confused and can't even complete an eligibility check. I called LifeX...they told me to say Multiplan PHCS when asking about in-network coverage...I do that...same results. Did I just get scammed??? LifeX also requested I fill out an I-9 and W-4...but for what???? There is no clear answers on anything and now the agent I purchased from has ghosted every text message I send him. What do I do now?? Did I really get scammed?\n\n",
+      "author": "Otherwise-Prize-3442",
+      "score": 1,
+      "label": "negative",
+      "confidence": 0.7,
+      "createdUtc": "2025-09-09T14:09:26.000Z",
+      "permalink": "/r/HealthInsurance/comments/1ncjyay/lifexphcs/",
+      "ignored": false,
+      "numComments": 3,
+      "manualLabel": "negative",
+      "manualScore": 1,
+      "taggedBy": "user",
+      "taggedAt": "2025-09-11T02:42:57.424Z"
+    },
+    {
+      "id": "t3_1msc49d",
+      "type": "post",
+      "subreddit": "HealthInsurance",
+      "title": "New York health insurance help",
+      "body": "I was a student, and was out in NYS Health Insurance through the market place. It auto renewed for 5 years. I am no longer eligible, and not even for a tax credit. I may need to pay between $600-$800 a month for the most simple / terrible (I hear) insurance, Healthfirst. \n\nHas anybody else had a situation like this? If so, how did you handle it? Luckily I am considered a small business and I can write off my healthcare premiums. But still $700 a month is a burden. For something that I barely use. I would love some feedback and suggestions! LIFEX contacted me but I read on this thread that they're a scam. ",
+      "author": "CodCheap9332",
+      "score": 1,
+      "label": "negative",
+      "confidence": 0.5,
+      "createdUtc": "2025-08-17T00:00:17.000Z",
+      "permalink": "/r/HealthInsurance/comments/1msc49d/new_york_health_insurance_help/",
+      "ignored": false,
+      "numComments": 10,
+      "manualLabel": "negative",
+      "manualScore": 1,
+      "taggedBy": "user",
+      "taggedAt": "2025-09-11T02:43:09.632Z"
+    },
+    {
+      "id": "t3_1lrj8m4",
+      "type": "post",
+      "subreddit": "HealthInsurance",
+      "title": "LifeX is being sued by Elevance Health, Anthem Insurance and Blue Cross and Blue Shield Association",
+      "body": "The companies allege that LifeX \n\n&gt; As part of a scheme to\ninduce consumers to purchase health insurance through an alleged employee\nbenefit plan, LifeX has willfully and improperly used AIC’s ANTHEM mark and\nBCBSA’s BLUECARD®, BLUE CROSS® and BLUE SHIELD® word marks\nand logos (the “BCBS Marks”) in blatant violation of Plaintiffs’ trademark rights.\nCase 1:25-cv-03590-WMR Document 1 Filed 06/27/25 Page 1 of 42\n2\nSpecifically, LifeX affixed Plaintiffs’ trademarks to counterfeit health insurance\ncards and marketing materials, falsely representing itself as an authorized client\nand group policy holder of Anthem Blue Cross and Blue Shield (“Anthem BCBS”)\nhealth insurance – without Plaintiffs’ knowledge, authorization or consent.\nDefendants’ misuse of Plaintiffs’ trademarks is a deliberate fraud on consumers.\nLifeX does not maintain any employee benefit plan with Anthem and is not\naffiliated with Plaintiffs in any way. By misrepresenting this relationship,\nDefendants are deceiving unsuspecting purchasers of health insurance and health\ncare providers alike, placing the public at significant risk. Consumers purchasing\nthis so-called benefits plan from LifeX will not receive the health insurance\n\n\ncoverage that they believed they purchased because LifeX has no actual\nrelationship with Plaintiffs and no authority to offer benefits under or related to an\nAnthem BCBS plan. Indeed, LifeX is willfully selling consumers an employee\nbenefits health insurance plan that does not exist. \n\nI've never posted here before, I stumbles on this case when reading the latest Courtwatch newsletter and saw they referred to [this post](https://www.reddit.com/r/HealthInsurance/comments/1jpop3e/lifex_research_coreanthem_ppo/) and figured people here should be made aware of the lawsuit.",
+      "author": "rx915",
+      "score": 1,
+      "label": "negative",
+      "confidence": 0.5,
+      "createdUtc": "2025-07-04T13:50:33.000Z",
+      "permalink": "/r/HealthInsurance/comments/1lrj8m4/lifex_is_being_sued_by_elevance_health_anthem/",
+      "ignored": false,
+      "numComments": 21,
+      "manualLabel": "negative",
+      "manualScore": 1,
+      "taggedBy": "user",
+      "taggedAt": "2025-09-11T02:44:02.812Z"
+    },
+    {
+      "id": "t3_1jpop3e",
+      "type": "post",
+      "subreddit": "HealthInsurance",
+      "title": "LifeX research core/Anthem PPO",
+      "body": "An insurance agent is trying to sell me on a plan that includes joining the lifeX research corp as an employee to just fill out surveys… And the coverage for medical insurance is through anthem PPO. Coverage is around $500 a month with $1000 deductible, and it's only a $250 co-pay to give birth. It seems too good to be true… And I can't find any information online, does anyone have any experience with this company?",
+      "author": "Coffee-lover_2660",
+      "score": 1,
+      "label": "negative",
+      "confidence": 0.7,
+      "createdUtc": "2025-04-02T13:35:19.000Z",
+      "permalink": "/r/HealthInsurance/comments/1jpop3e/lifex_research_coreanthem_ppo/",
+      "ignored": false,
+      "numComments": 146,
+      "manualLabel": "negative",
+      "manualScore": 1,
+      "taggedBy": "user",
+      "taggedAt": "2025-09-11T02:44:59.152Z"
+    },
+    {
+      "id": "t3_1jefsek",
+      "type": "post",
+      "subreddit": "HealthInsurance",
+      "title": "Scam?",
+      "body": "This is a little too late kind of question. \n\nBasically, I am switching jobs and will need to buy my own insurance. I’m planning on getting pregnant and in my state, I do not have any marketplace plans that will cover maternity related things. I went through an agent and was told me that I can get a private plan and it’d be a Cigna PPO network. Everything sounded decent until I got the paperwork for it and it kept talking about lifeX and kmg. I called him and he said that the plan is through KMG by being a minority employer of lifeX research coperation. Apparently, this is a totally legit thing to do per the broker/agent. \n\nHave anyone ever heard of this? Is this really legit? \n\nUnfortunately I already gave out all mine and family info before I knew about the whole lifeX and kmg thing. I thought I was just signing up for Cigna PPO but apparently KMG owns the plan and uses Cigna’s network. \n\nUgh idk what to do. \n\nThoughts? Advice? ",
+      "author": "Dull-Win-7296",
+      "score": 1,
+      "label": "negative",
+      "confidence": 0.5,
+      "createdUtc": "2025-03-18T20:59:51.000Z",
+      "permalink": "/r/HealthInsurance/comments/1jefsek/scam/",
+      "ignored": false,
+      "numComments": 18,
+      "manualLabel": "negative",
+      "manualScore": 1,
+      "taggedBy": "user",
+      "taggedAt": "2025-09-11T02:45:06.578Z"
+    },
     {
       "id": "t3_1lmw1pv",
       "type": "post",
@@ -474,31 +613,123 @@
       "numComments": 9
     }
   ],
-  "countsBySubreddit": {
-    "HealthInsurance": 6,
-    "ChatETF": 1,
-    "ETFs": 1,
-    "u_Chance-Leader-2852": 1,
-    "comicbookcollecting": 1,
-    "DeoVR": 1,
-    "xToolOfficial": 1,
-    "HumanTorchMains": 1,
-    "edgar_news": 1,
-    "InsuranceAgent": 1,
-    "skyrizi": 1,
-    "Hardcore": 1,
-    "investimentos": 1,
-    "UFOB_Disclosures": 2,
-    "BreakUps": 1,
-    "Silksong": 1,
-    "Jackery": 1,
-    "KaynMains": 1,
-    "HelloSweetDaysEn": 1,
-    "askberliners": 2,
-    "ClerithKingdom": 1,
-    "Whitelist_Airdrop": 1,
-    "longevity": 1
-  },
+  "countsBySubreddit": [
+    {
+      "subreddit": "HealthInsurance",
+      "count": 6,
+      "averageScore": 9.166666666666666
+    },
+    {
+      "subreddit": "UFOB_Disclosures",
+      "count": 2,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "askberliners",
+      "count": 2,
+      "averageScore": 65
+    },
+    {
+      "subreddit": "ChatETF",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "ETFs",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "u_Chance-Leader-2852",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "comicbookcollecting",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "DeoVR",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "xToolOfficial",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "HumanTorchMains",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "edgar_news",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "InsuranceAgent",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "skyrizi",
+      "count": 1,
+      "averageScore": 10
+    },
+    {
+      "subreddit": "Hardcore",
+      "count": 1,
+      "averageScore": 90
+    },
+    {
+      "subreddit": "investimentos",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "BreakUps",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "Silksong",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "Jackery",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "KaynMains",
+      "count": 1,
+      "averageScore": 50
+    },
+    {
+      "subreddit": "HelloSweetDaysEn",
+      "count": 1,
+      "averageScore": 80
+    },
+    {
+      "subreddit": "ClerithKingdom",
+      "count": 1,
+      "averageScore": 100
+    },
+    {
+      "subreddit": "Whitelist_Airdrop",
+      "count": 1,
+      "averageScore": 80
+    },
+    {
+      "subreddit": "longevity",
+      "count": 1,
+      "averageScore": 100
+    }
+  ],
   "totalMentions": 30,
-  "lastUpdated": "2025-09-11T02:21:02.569Z"
+  "lastUpdated": "2025-09-11T02:49:08.645Z"
 }

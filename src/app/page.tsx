@@ -1,10 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { TrendingUp, TrendingDown, Minus, ExternalLink, RefreshCw } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, ExternalLink, RefreshCw, BarChart3, Users } from 'lucide-react'
 import LiveDashboard from '@/components/LiveDashboard'
 import MentionTagger from '@/components/MentionTagger'
 import MentionFilters from '@/components/MentionFilters'
+import CommentsDropdown from '@/components/CommentsDropdown'
+import Navigation from '@/components/layout/navigation'
+import RedditAccountsPage from '@/components/RedditAccountsPage'
 
 interface Stats {
   countsByLabel: {
@@ -42,10 +45,13 @@ interface Mention {
   taggedAt?: string
   ignored?: boolean
   ignoredAt?: string
+  urgent?: boolean
+  urgentAt?: string
   numComments?: number
 }
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'accounts'>('dashboard')
   const [stats, setStats] = useState<Stats | null>(null)
   const [mentions, setMentions] = useState<Mention[]>([])
   const [loading, setLoading] = useState(true)
@@ -55,8 +61,9 @@ export default function Home() {
   const [filters, setFilters] = useState({
     subreddit: '',
     sentiment: '',
-    dateRange: { start: '', end: '' },
+    sortBy: 'newest',
     showIgnored: false,
+    showUrgent: false,
     minComments: 0
   })
   const [allMentions, setAllMentions] = useState<Mention[]>([])
@@ -139,6 +146,23 @@ export default function Home() {
           : mention
       )
     )
+    
+    // Refresh stats to reflect the change
+    fetchData()
+  }
+
+  const handleUrgentToggle = (mentionId: string, isUrgent: boolean) => {
+    setAllMentions(prevMentions =>
+      prevMentions.map(mention =>
+        mention.id === mentionId
+          ? {
+              ...mention,
+              urgent: isUrgent,
+              urgentAt: isUrgent ? new Date().toISOString() : undefined,
+            }
+          : mention
+      )
+    )
   }
 
   const applyFilters = (mentionsToFilter: Mention[], currentFilters: typeof filters) => {
@@ -147,6 +171,11 @@ export default function Home() {
     // Apply ignored filter
     if (!currentFilters.showIgnored) {
       filtered = filtered.filter(mention => !mention.ignored)
+    }
+
+    // Apply urgent filter
+    if (currentFilters.showUrgent) {
+      filtered = filtered.filter(mention => mention.urgent)
     }
 
     // Apply subreddit filter
@@ -161,20 +190,23 @@ export default function Home() {
       filtered = filtered.filter(mention => mention.label === currentFilters.sentiment)
     }
 
-    // Apply date range filter
-    if (currentFilters.dateRange.start) {
-      const startDate = new Date(currentFilters.dateRange.start)
-      filtered = filtered.filter(mention => 
-        new Date(mention.createdUtc) >= startDate
-      )
-    }
-
-    if (currentFilters.dateRange.end) {
-      const endDate = new Date(currentFilters.dateRange.end)
-      endDate.setHours(23, 59, 59, 999) // End of day
-      filtered = filtered.filter(mention => 
-        new Date(mention.createdUtc) <= endDate
-      )
+    // Apply sorting
+    switch (currentFilters.sortBy) {
+      case 'newest':
+        filtered = filtered.sort((a, b) => new Date(b.createdUtc).getTime() - new Date(a.createdUtc).getTime())
+        break
+      case 'oldest':
+        filtered = filtered.sort((a, b) => new Date(a.createdUtc).getTime() - new Date(b.createdUtc).getTime())
+        break
+      case 'score-high':
+        filtered = filtered.sort((a, b) => b.score - a.score)
+        break
+      case 'score-low':
+        filtered = filtered.sort((a, b) => a.score - b.score)
+        break
+      default:
+        // Default to newest
+        filtered = filtered.sort((a, b) => new Date(b.createdUtc).getTime() - new Date(a.createdUtc).getTime())
     }
 
     // Apply comments filter
@@ -262,15 +294,55 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
+      <Navigation />
+      <div className="lg:pl-64">
+        <main className="pt-2 pb-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header - Moved to top */}
+        <div className="text-center mb-6">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Lifex Reddit Monitor</h1>
           <p className="text-gray-600 text-lg">Real-time monitoring of Reddit mentions with sentiment analysis</p>
         </div>
 
-        {/* Status Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+        {/* Tab Navigation */}
+        <div className="mb-8">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('dashboard')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'dashboard'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  Dashboard
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('accounts')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'accounts'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  Reddit Accounts
+                </div>
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'dashboard' && (
+          <>
+            {/* Status Box */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
             <span className="text-blue-900 font-medium">Bot Status:</span>
@@ -370,13 +442,22 @@ export default function Home() {
                     ? `Showing ${mentions.length} mentions (including ${mentions.filter(m => m.ignored).length} ignored)`
                     : `Showing ${mentions.filter(m => !m.ignored).length} active mentions`
                   }
+                  <span className="ml-2 text-xs text-yellow-600">
+                    • "Lifex" and "Lifex Research" mentions are highlighted
+                  </span>
                 </p>
               </div>
             </div>
           </div>
           <div className="divide-y divide-gray-200">
             {mentions.map((mention) => (
-              <div key={mention.id} className={`p-6 hover:bg-gray-50 ${mention.ignored ? 'opacity-60 bg-gray-50' : ''}`}>
+              <div key={mention.id} className={`p-6 transition-all duration-200 ${
+                mention.ignored 
+                  ? 'opacity-40 bg-gray-100 border-l-4 border-gray-400' 
+                  : mention.urgent 
+                    ? 'bg-orange-50 border-l-4 border-orange-400 hover:bg-orange-100' 
+                    : 'hover:bg-gray-50'
+              }`}>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -412,11 +493,15 @@ export default function Home() {
                         currentScore={mention.score}
                         isManuallyTagged={!!mention.manualLabel}
                         isIgnored={!!mention.ignored}
+                        isUrgent={!!mention.urgent}
                         onTagUpdate={(newLabel, newScore) => 
                           handleMentionTagUpdate(mention.id, newLabel, newScore)
                         }
                         onIgnoreToggle={(isIgnored) => 
                           handleIgnoreToggle(mention.id, isIgnored)
+                        }
+                        onUrgentToggle={(isUrgent) => 
+                          handleUrgentToggle(mention.id, isUrgent)
                         }
                       />
         </div>
@@ -426,19 +511,30 @@ export default function Home() {
           rel="noopener noreferrer"
                       className="block hover:bg-gray-50 p-2 -m-2 rounded"
                     >
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-blue-600">
-                        {mention.title || 'Comment'}
-                      </h3>
-                      <p className="text-gray-700 mb-3">
-                        {mention.body?.substring(0, 200) + (mention.body && mention.body.length > 200 ? '...' : '')}
-                      </p>
+                      <h3 
+                        className={`text-lg font-semibold mb-2 hover:text-blue-600 ${mention.ignored ? 'text-gray-500' : 'text-gray-900'}`}
+                        dangerouslySetInnerHTML={{
+                          __html: highlightMentions(mention.title || 'Comment')
+                        }}
+                      />
+                      <p 
+                        className={`mb-3 ${mention.ignored ? 'text-gray-500' : 'text-gray-700'}`}
+                        dangerouslySetInnerHTML={{
+                          __html: highlightMentions(
+                            mention.body?.substring(0, 200) + (mention.body && mention.body.length > 200 ? '...' : '') || ''
+                          )
+                        }}
+                      />
                     </a>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <div className={`flex items-center gap-4 text-sm ${mention.ignored ? 'text-gray-400' : 'text-gray-500'}`}>
                       <span>Score: {mention.score}</span>
                       <span>Comments: {mention.numComments || 0}</span>
                       <span className="capitalize">{mention.type}</span>
                       {mention.manualLabel && (
                         <span className="text-blue-600 text-xs font-medium">Manually tagged</span>
+                      )}
+                      {mention.urgent && (
+                        <span className="text-orange-600 text-xs font-medium">🚨 Urgent</span>
                       )}
                       {mention.ignored && (
                         <span className="text-red-600 text-xs font-medium">Ignored</span>
@@ -452,6 +548,13 @@ export default function Home() {
                         View on Reddit →
                       </a>
                     </div>
+                    
+                    {/* Comments Dropdown */}
+                    <CommentsDropdown
+                      mentionId={mention.id}
+                      isPost={mention.type === 'post'}
+                      numComments={mention.numComments || 0}
+                    />
                   </div>
                   <a
                     href={`https://reddit.com${mention.permalink}`}
@@ -467,6 +570,14 @@ export default function Home() {
             ))}
           </div>
         </div>
+          </>
+        )}
+
+        {activeTab === 'accounts' && (
+          <RedditAccountsPage />
+        )}
+          </div>
+        </main>
       </div>
     </div>
   )

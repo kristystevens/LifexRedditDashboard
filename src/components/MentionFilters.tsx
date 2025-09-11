@@ -7,8 +7,9 @@ interface MentionFiltersProps {
   onFiltersChange: (filters: {
     subreddit: string
     sentiment: string
-    dateRange: { start: string; end: string }
+    sortBy: string
     showIgnored: boolean
+    showUrgent: boolean
     minComments: number
   }) => void
   availableSubreddits: string[]
@@ -25,8 +26,9 @@ export default function MentionFilters({
   const [filters, setFilters] = useState({
     subreddit: '',
     sentiment: '',
-    dateRange: { start: '', end: '' },
+    sortBy: 'newest',
     showIgnored: false,
+    showUrgent: false,
     minComments: 0
   })
 
@@ -36,9 +38,9 @@ export default function MentionFilters({
     const hasFilters = 
       filters.subreddit !== '' ||
       filters.sentiment !== '' ||
-      filters.dateRange.start !== '' ||
-      filters.dateRange.end !== '' ||
+      filters.sortBy !== 'newest' ||
       filters.showIgnored ||
+      filters.showUrgent ||
       filters.minComments > 0
 
     setHasActiveFilters(hasFilters)
@@ -52,22 +54,14 @@ export default function MentionFilters({
     }))
   }
 
-  const handleDateRangeChange = (key: 'start' | 'end', value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      dateRange: {
-        ...prev.dateRange,
-        [key]: value
-      }
-    }))
-  }
 
   const clearAllFilters = () => {
     setFilters({
       subreddit: '',
       sentiment: '',
-      dateRange: { start: '', end: '' },
+      sortBy: 'newest',
       showIgnored: false,
+      showUrgent: false,
       minComments: 0
     })
   }
@@ -76,8 +70,9 @@ export default function MentionFilters({
     let count = 0
     if (filters.subreddit) count++
     if (filters.sentiment) count++
-    if (filters.dateRange.start || filters.dateRange.end) count++
+    if (filters.sortBy !== 'newest') count++
     if (filters.showIgnored) count++
+    if (filters.showUrgent) count++
     if (filters.minComments > 0) count++
     return count
   }
@@ -170,32 +165,37 @@ export default function MentionFilters({
           </div>
         </div>
 
-        {/* Date Range Filter */}
+        {/* Sort Filter */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             <Calendar className="w-4 h-4 inline mr-1" />
-            Date Range
+            Sort By
           </label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">From</label>
-              <input
-                type="date"
-                value={filters.dateRange.start}
-                onChange={(e) => handleDateRangeChange('start', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">To</label>
-              <input
-                type="date"
-                value={filters.dateRange.end}
-                onChange={(e) => handleDateRangeChange('end', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-          </div>
+          <select
+            value={filters.sortBy}
+            onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="newest">Newest to Oldest</option>
+            <option value="oldest">Oldest to Newest</option>
+            <option value="score-high">Highest Score First</option>
+            <option value="score-low">Lowest Score First</option>
+          </select>
+        </div>
+
+        {/* Urgent Filter */}
+        <div>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={filters.showUrgent}
+              onChange={(e) => handleFilterChange('showUrgent', e.target.checked)}
+              className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              Show only urgent mentions
+            </span>
+          </label>
         </div>
 
         {/* Ignored Filter */}

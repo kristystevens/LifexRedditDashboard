@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Tag, Check, X, RotateCcw, Filter, FilterX } from 'lucide-react'
+import { Tag, Check, X, RotateCcw, Eye, EyeOff, AlertTriangle } from 'lucide-react'
 
 interface MentionTaggerProps {
   mentionId: string
@@ -9,8 +9,10 @@ interface MentionTaggerProps {
   currentScore: number
   isManuallyTagged: boolean
   isIgnored: boolean
+  isUrgent: boolean
   onTagUpdate: (newLabel: string, newScore: number) => void
   onIgnoreToggle: (isIgnored: boolean) => void
+  onUrgentToggle: (isUrgent: boolean) => void
 }
 
 export default function MentionTagger({
@@ -19,8 +21,10 @@ export default function MentionTagger({
   currentScore,
   isManuallyTagged,
   isIgnored,
+  isUrgent,
   onTagUpdate,
   onIgnoreToggle,
+  onUrgentToggle,
 }: MentionTaggerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -95,6 +99,31 @@ export default function MentionTagger({
       }
     } catch (error) {
       console.error('Error toggling ignore:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleUrgentToggle = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch(`/api/mentions/${mentionId}/urgent`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          urgent: !isUrgent,
+        }),
+      })
+
+      if (response.ok) {
+        onUrgentToggle(!isUrgent)
+      } else {
+        console.error('Failed to toggle urgent')
+      }
+    } catch (error) {
+      console.error('Error toggling urgent:', error)
     } finally {
       setIsLoading(false)
     }
@@ -189,7 +218,7 @@ export default function MentionTagger({
                   : 'hover:bg-red-50 text-red-700'
               }`}
             >
-              {isIgnored ? <FilterX className="w-3 h-3" /> : <Filter className="w-3 h-3" />}
+              {isIgnored ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
               {isIgnored ? 'Unignore' : 'Ignore'}
             </button>
           </div>
@@ -205,19 +234,39 @@ export default function MentionTagger({
         )}
       </div>
       
-      {/* Filter toggle button */}
-      <button
-        onClick={handleIgnoreToggle}
-        disabled={isLoading}
-        className={`p-1 rounded hover:bg-gray-100 disabled:opacity-50 transition-colors ${
-          isIgnored 
-            ? 'text-red-600 bg-red-50 hover:bg-red-100' 
-            : 'text-gray-400 hover:text-gray-600'
-        }`}
-        title={isIgnored ? 'Unignore this mention' : 'Ignore this mention'}
-      >
-        {isIgnored ? <FilterX className="w-4 h-4" /> : <Filter className="w-4 h-4" />}
-      </button>
+          {/* Urgent toggle button */}
+          <button
+            onClick={handleUrgentToggle}
+            disabled={isLoading}
+            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
+              isUrgent
+                ? 'bg-orange-100 text-orange-700 hover:bg-orange-200 border border-orange-200'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
+            }`}
+            title={isUrgent ? 'Mark as not urgent' : 'Mark as urgent'}
+          >
+            <div className="flex items-center gap-1">
+              <AlertTriangle className="w-3 h-3" />
+              <span>{isUrgent ? 'Urgent' : 'Mark Urgent'}</span>
+            </div>
+          </button>
+
+          {/* Ignore toggle button */}
+          <button
+            onClick={handleIgnoreToggle}
+            disabled={isLoading}
+            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${
+              isIgnored
+                ? 'bg-green-100 text-green-700 hover:bg-green-200 border border-green-200'
+                : 'bg-red-100 text-red-700 hover:bg-red-200 border border-red-200'
+            }`}
+            title={isIgnored ? 'Unignore this mention' : 'Ignore this mention'}
+          >
+            <div className="flex items-center gap-1">
+              {isIgnored ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+              <span>{isIgnored ? 'Unignore' : 'Ignore'}</span>
+            </div>
+          </button>
     </div>
   )
 }
