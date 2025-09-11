@@ -19,44 +19,32 @@ export async function POST(
       )
     }
 
-    const dataFile = join(process.cwd(), 'data', 'reddit-data.json')
-    
-    if (!existsSync(dataFile)) {
-      return NextResponse.json(
-        { success: false, error: 'No Reddit data available' },
-        { status: 404 }
-      )
-    }
+    // Find the mention
+    const mention = await prisma.mention.findUnique({
+      where: { id }
+    })
 
-    // Read current data
-    const redditData = JSON.parse(readFileSync(dataFile, 'utf8'))
-    
-    // Find and update the mention
-    const mentionIndex = redditData.mentions.findIndex((m: any) => m.id === id)
-    if (mentionIndex === -1) {
+    if (!mention) {
       return NextResponse.json(
         { success: false, error: 'Mention not found' },
         { status: 404 }
       )
     }
 
-    // Update the mention
-    redditData.mentions[mentionIndex] = {
-      ...redditData.mentions[mentionIndex],
-      ignored: ignored,
-      ignoredAt: ignored ? new Date().toISOString() : undefined,
-    }
-
-    // Save updated data
-    writeFileSync(dataFile, JSON.stringify(redditData, null, 2))
+    // Update the mention in database
+    const updatedMention = await prisma.mention.update({
+      where: { id },
+      data: {
+        ignored: ignored,
+      }
+    })
 
     return NextResponse.json({
       success: true,
       message: `Mention ${ignored ? 'ignored' : 'unignored'} successfully`,
       data: {
-        id: redditData.mentions[mentionIndex].id,
-        ignored: ignored,
-        ignoredAt: redditData.mentions[mentionIndex].ignoredAt,
+        id: updatedMention.id,
+        ignored: updatedMention.ignored,
       },
     })
   } catch (error) {
@@ -69,5 +57,7 @@ export async function POST(
       },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }

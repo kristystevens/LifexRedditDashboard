@@ -5,9 +5,9 @@
       "username": "lifexresearchofficial@gmail.com",
       "passwordHash": "$2a$12$675.fYH.Kafc74wKHdT9VOhpreysmdOiJ.nmGV1kQR1oewe25jJhC",
       "createdAt": "2025-09-11T03:17:20.910Z",
-      "updatedAt": "2025-09-11T03:27:15.709Z",
+      "updatedAt": "2025-09-11T17:51:22.368Z",
       "isActive": true,
-      "notes": "",
+      "notes": "Admin1234$",
       "email": "lifexresearchofficial@gmail.com"
     },
     {
@@ -15,10 +15,21 @@
       "username": "LifeX_research",
       "passwordHash": "$2a$12$fOX6JGxs8/QpSGmg8uaDIOxtDuicSaJvJDukLpcsnk2vNLYakWyhO",
       "createdAt": "2025-09-11T03:17:57.359Z",
-      "updatedAt": "2025-09-11T03:20:44.276Z",
+      "updatedAt": "2025-09-11T17:51:43.428Z",
       "isActive": true,
-      "notes": "support@lifexresearch.com"
+      "notes": "Admin1234$",
+      "email": "support@lifexresearch.com"
+    },
+    {
+      "id": "acc_1757613041515_udmknhhbu",
+      "username": "LifexResearchCorp",
+      "email": "kristystevens@versiondigitalsolutions.com",
+      "password": "LifeXHealth1234$",
+      "createdAt": "2025-09-11T17:50:41.516Z",
+      "updatedAt": "2025-09-11T17:50:41.516Z",
+      "isActive": true,
+      "notes": "LifeXHealth1234$"
     }
   ],
-  "lastUpdated": "2025-09-11T03:27:15.709Z"
+  "lastUpdated": "2025-09-11T17:51:43.428Z"
 }

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "ingest:once": "tsx scripts/ingest.ts",
@@ -15,7 +15,12 @@
     "quick:ingest": "tsx scripts/quick-ingest.ts",
     "fetch:reddit": "tsx scripts/fetch-reddit-data.ts",
     "fetch:public-reddit": "tsx scripts/fetch-public-reddit-data.ts",
-    "start:reddit-cron": "tsx scripts/reddit-data-cron.ts"
+    "start:reddit-cron": "tsx scripts/reddit-data-cron.ts",
+    "setup:production": "node scripts/setup-production.js",
+    "deploy": "docker-compose up -d",
+    "deploy:build": "docker-compose build && docker-compose up -d",
+    "logs": "docker-compose logs -f",
+    "stop": "docker-compose down"
   },
   "dependencies": {
     "@prisma/client": "^6.16.0",

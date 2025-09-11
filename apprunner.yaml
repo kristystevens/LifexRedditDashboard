@@ -1,0 +1,44 @@
+version: 1.0
+runtime: docker
+build:
+  commands:
+    build:
+      - echo "Building Lifex Reddit Monitor..."
+      - docker build -t lifex-monitor .
+run:
+  runtime-version: latest
+  command: docker run -p 3000:3000 lifex-monitor
+  network:
+    port: 3000
+    env: PORT
+  env:
+    - name: NODE_ENV
+      value: production
+    - name: DATABASE_URL
+      value: file:/app/data/prod.db
+    - name: REDDIT_CLIENT_ID
+      value: ${REDDIT_CLIENT_ID}
+    - name: REDDIT_CLIENT_SECRET
+      value: ${REDDIT_CLIENT_SECRET}
+    - name: REDDIT_USERNAME
+      value: ${REDDIT_USERNAME}
+    - name: REDDIT_PASSWORD
+      value: ${REDDIT_PASSWORD}
+    - name: REDDIT_USER_AGENT
+      value: ${REDDIT_USER_AGENT}
+    - name: OPENAI_API_KEY
+      value: ${OPENAI_API_KEY}
+    - name: EMAIL_FROM
+      value: ${EMAIL_FROM}
+    - name: EMAIL_TO
+      value: ${EMAIL_TO}
+    - name: SMTP_HOST
+      value: ${SMTP_HOST}
+    - name: SMTP_PORT
+      value: ${SMTP_PORT}
+    - name: SMTP_USER
+      value: ${SMTP_USER}
+    - name: SMTP_PASS
+      value: ${SMTP_PASS}
+    - name: CRON_SECRET
+      value: ${CRON_SECRET}

@@ -73,7 +73,7 @@ export default function Home() {
     try {
       const [statsRes, mentionsRes] = await Promise.all([
         fetch('/api/stats'),
-        fetch('/api/mentions?limit=100')
+        fetch('/api/mentions?limit=1000&showIgnored=true') // Include ignored mentions with higher limit
       ])
 
       if (statsRes.ok) {
@@ -84,7 +84,9 @@ export default function Home() {
       if (mentionsRes.ok) {
         const mentionsData = await mentionsRes.json()
         setAllMentions(mentionsData.data.mentions)
-        setMentions(mentionsData.data.mentions)
+        // Initially show only non-ignored mentions, but keep all in allMentions
+        const nonIgnoredMentions = mentionsData.data.mentions.filter((m: Mention) => !m.ignored)
+        setMentions(nonIgnoredMentions)
         setLastUpdated(new Date(mentionsData.data.lastUpdated))
       }
     } catch (error) {
@@ -451,7 +453,7 @@ export default function Home() {
                 <p className="text-sm text-gray-500 mt-1">
                   {filters.showIgnored 
                     ? `Showing ${mentions.length} mentions (including ${mentions.filter(m => m.ignored).length} ignored)`
-                    : `Showing ${mentions.filter(m => !m.ignored).length} active mentions`
+                    : `Showing ${mentions.length} active mentions (${stats?.totalIgnored || 0} ignored)`
                   }
                   <span className="ml-2 text-xs text-yellow-600">
                     • "Lifex" and "Lifex Research" mentions are highlighted
@@ -472,6 +474,16 @@ export default function Home() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
+                      {mention.ignored && (
+                        <span className="bg-gray-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                          IGNORED
+                        </span>
+                      )}
+                      {mention.urgent && !mention.ignored && (
+                        <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
+                          URGENT
+                        </span>
+                      )}
                       <a
                         href={`https://reddit.com/r/${mention.subreddit}`}
             target="_blank"
