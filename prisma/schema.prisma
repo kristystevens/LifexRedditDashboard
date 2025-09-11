@@ -1,0 +1,38 @@
+// LifeX Reddit Mentions Monitor - Prisma Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Mention {
+  id              String   @id           // Reddit fullname ID (e.g., "t3_abc123")
+  type            String                 // 'post' | 'comment'
+  subreddit       String
+  permalink       String
+  author          String?
+  title           String?
+  body            String?
+  createdUtc      DateTime
+  label           String                 // 'negative' | 'neutral' | 'positive'
+  confidence      Float
+  score           Int                    // 1..100 (1 = most negative, 100 = most positive)
+  keywordsMatched String                 // JSON array of matched keywords
+  ingestedAt      DateTime @default(now())
+  
+  // Manual override fields
+  manualLabel     String?                // Manual sentiment override
+  manualScore     Int?                   // Manual score override
+  taggedBy        String?                // Who tagged this mention
+  taggedAt        DateTime?              // When it was manually tagged
+
+  @@index([createdUtc])
+  @@index([subreddit])
+  @@index([label])
+  @@index([score])
+  @@index([manualLabel])
+}
