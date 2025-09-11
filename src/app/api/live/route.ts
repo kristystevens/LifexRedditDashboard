@@ -1,48 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { readFileSync, existsSync } from 'fs'
+import { join } from 'path'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const since = searchParams.get('since')
 
-    // Get mentions since a specific timestamp
-    const where: any = {}
+    const dataFile = join(process.cwd(), 'data', 'reddit-data.json')
+    
+    if (!existsSync(dataFile)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'No Reddit data available. Please run the data fetch script first.',
+        },
+        { status: 404 }
+      )
+    }
+
+    const redditData = JSON.parse(readFileSync(dataFile, 'utf8'))
+    let mentions = redditData.mentions
+
+    // Filter by timestamp if provided
     if (since) {
-      where.createdUtc = { gte: new Date(since) }
+      const sinceDate = new Date(since)
+      mentions = mentions.filter((mention: any) => 
+        new Date(mention.createdUtc) >= sinceDate
+      )
     }
 
-    const mentions = await prisma.mention.findMany({
-      where,
-      orderBy: { createdUtc: 'desc' },
-      take: 50,
-    })
-
-    // Get real-time stats
-    const stats = await prisma.mention.groupBy({
-      by: ['label'],
-      _count: { label: true },
-    })
-
-    const labelCounts = {
-      negative: 0,
-      neutral: 0,
-      positive: 0,
+    const liveData = {
+      mentions: mentions.slice(0, 10), // Show latest 10
+      stats: redditData.stats,
+      timestamp: redditData.lastUpdated,
     }
-
-    stats.forEach(stat => {
-      if (stat.label in labelCounts) {
-        labelCounts[stat.label as keyof typeof labelCounts] = stat._count.label
-      }
-    })
 
     return NextResponse.json({
       success: true,
-      data: {
-        mentions,
-        stats: labelCounts,
-        timestamp: new Date().toISOString(),
-      },
+      data: liveData,
     })
   } catch (error) {
     console.error('Error fetching live data:', error)

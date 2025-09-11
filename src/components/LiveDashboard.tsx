@@ -1,20 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { TrendingUp, TrendingDown, Minus, ExternalLink, Activity, Clock } from 'lucide-react'
-
-interface LiveMention {
-  id: string
-  type: string
-  subreddit: string
-  author?: string
-  title?: string
-  body?: string
-  createdUtc: string
-  label: string
-  score: number
-  permalink: string
-}
+import { TrendingUp, TrendingDown, Minus, Activity, Clock } from 'lucide-react'
 
 interface LiveStats {
   negative: number
@@ -23,7 +10,6 @@ interface LiveStats {
 }
 
 interface LiveData {
-  mentions: LiveMention[]
   stats: LiveStats
   timestamp: string
 }
@@ -66,6 +52,7 @@ export default function LiveDashboard() {
       setConnectionStatus('error')
     }
   }
+
 
   useEffect(() => {
     if (!isLive) return
@@ -152,90 +139,7 @@ export default function LiveDashboard() {
         </div>
       </div>
 
-      {/* Live Stats */}
-      {liveData && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <TrendingDown className="w-6 h-6 text-red-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Negative</p>
-                <p className="text-2xl font-bold text-red-600">{liveData.stats.negative}</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="p-2 bg-gray-100 rounded-lg">
-                <Minus className="w-6 h-6 text-gray-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Neutral</p>
-                <p className="text-2xl font-bold text-gray-600">{liveData.stats.neutral}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Positive</p>
-                <p className="text-2xl font-bold text-green-600">{liveData.stats.positive}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Live Mentions Feed */}
-      {liveData && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Live Mentions Feed</h3>
-            <p className="text-sm text-gray-600">Latest mentions as they're discovered</p>
-          </div>
-          <div className="divide-y divide-gray-200 max-h-96 overflow-y-auto">
-            {liveData.mentions.slice(0, 10).map((mention) => (
-              <div key={mention.id} className="p-4 hover:bg-gray-50">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-medium text-gray-900">r/{mention.subreddit}</span>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getSentimentColor(mention.label)}`}>
-                        {mention.label}
-                      </span>
-                      <span className="text-sm text-gray-500">Score: {mention.score}/100</span>
-                      <span className="text-xs text-gray-400">
-                        {new Date(mention.createdUtc).toLocaleString()}
-                      </span>
-                    </div>
-                    <h4 className="text-sm font-medium text-gray-900 mb-1">
-                      {mention.title || mention.body?.substring(0, 100) + '...'}
-                    </h4>
-                    <p className="text-sm text-gray-600">
-                      by {mention.author}
-                    </p>
-                  </div>
-                  <a
-                    href={`https://reddit.com${mention.permalink}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ml-4 p-2 text-gray-400 hover:text-gray-600"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

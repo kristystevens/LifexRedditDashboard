@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { TrendingUp, TrendingDown, Minus, ExternalLink, RefreshCw } from 'lucide-react'
 import LiveDashboard from '@/components/LiveDashboard'
+import MentionTagger from '@/components/MentionTagger'
 
 interface Stats {
   countsByLabel: {
@@ -33,6 +34,10 @@ interface Mention {
   label: string
   score: number
   permalink: string
+  manualLabel?: string
+  manualScore?: number
+  taggedBy?: string
+  taggedAt?: string
 }
 
 export default function Home() {
@@ -83,6 +88,28 @@ export default function Home() {
     setRefreshing(true)
     fetchData()
   }
+
+  const handleMentionTagUpdate = (mentionId: string, newLabel: string, newScore: number) => {
+    setMentions(prevMentions =>
+      prevMentions.map(mention =>
+        mention.id === mentionId
+          ? {
+              ...mention,
+              label: newLabel,
+              score: newScore,
+              manualLabel: newLabel,
+              manualScore: newScore,
+              taggedBy: 'user',
+              taggedAt: new Date().toISOString(),
+            }
+          : mention
+      )
+    )
+    
+    // Refresh stats to reflect the change
+    fetchData()
+  }
+
 
   const getSentimentIcon = (label: string) => {
     switch (label) {
@@ -273,13 +300,22 @@ export default function Home() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <a 
-                        href={`https://reddit.com${mention.permalink}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <a
+                        href={`https://reddit.com/r/${mention.subreddit}`}
+            target="_blank"
+            rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-800 font-medium"
                       >
-                        r/{mention.subreddit} by u/{mention.author}
+                        r/{mention.subreddit}
+                      </a>
+                      <span className="text-gray-500"> by </span>
+                      <a
+                        href={`https://reddit.com/u/${mention.author}`}
+            target="_blank"
+            rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        u/{mention.author}
                       </a>
                       <span className="text-gray-500 text-sm">
                         {new Date(mention.createdUtc).toLocaleDateString('en-US', { 
@@ -290,31 +326,52 @@ export default function Home() {
                           hour12: true 
                         })}
                       </span>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        mention.label === 'positive' ? 'bg-green-100 text-green-800' :
-                        mention.label === 'negative' ? 'bg-red-100 text-red-800' :
-                        'bg-amber-100 text-amber-800'
-                      }`}>
-                        {mention.label.charAt(0).toUpperCase() + mention.label.slice(1)}
-                      </span>
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {mention.title || 'Comment'}
-                    </h3>
-                    <p className="text-gray-700 mb-3">
-                      {mention.body?.substring(0, 200) + (mention.body && mention.body.length > 200 ? '...' : '')}
-                    </p>
+                      <MentionTagger
+                        mentionId={mention.id}
+                        currentLabel={mention.label}
+                        currentScore={mention.score}
+                        isManuallyTagged={!!mention.manualLabel}
+                        onTagUpdate={(newLabel, newScore) => 
+                          handleMentionTagUpdate(mention.id, newLabel, newScore)
+                        }
+                      />
+        </div>
+        <a
+                      href={`https://reddit.com${mention.permalink}`}
+          target="_blank"
+          rel="noopener noreferrer"
+                      className="block hover:bg-gray-50 p-2 -m-2 rounded"
+                    >
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-blue-600">
+                        {mention.title || 'Comment'}
+                      </h3>
+                      <p className="text-gray-700 mb-3">
+                        {mention.body?.substring(0, 200) + (mention.body && mention.body.length > 200 ? '...' : '')}
+                      </p>
+                    </a>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                       <span>Score: {mention.score}</span>
                       <span>Comments: 0</span>
                       <span className="capitalize">{mention.type}</span>
+                      {mention.manualLabel && (
+                        <span className="text-blue-600 text-xs font-medium">Manually tagged</span>
+                      )}
+                      <a
+                        href={`https://reddit.com${mention.permalink}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        View on Reddit →
+                      </a>
                     </div>
                   </div>
                   <a
                     href={`https://reddit.com${mention.permalink}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+          target="_blank"
+          rel="noopener noreferrer"
                     className="ml-4 p-2 text-gray-400 hover:text-gray-600"
+                    title="Open in Reddit"
                   >
                     <ExternalLink className="w-5 h-5" />
                   </a>

@@ -12,7 +12,9 @@
     "test:reddit": "tsx scripts/test-reddit.ts",
     "seed:data": "tsx scripts/seed-data.ts",
     "start:monitor": "tsx scripts/start-cron.ts",
-    "quick:ingest": "tsx scripts/quick-ingest.ts"
+    "quick:ingest": "tsx scripts/quick-ingest.ts",
+    "fetch:reddit": "tsx scripts/fetch-reddit-data.ts",
+    "start:reddit-cron": "tsx scripts/reddit-data-cron.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.16.0",

@@ -1,76 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { readFileSync, existsSync } from 'fs'
+import { join } from 'path'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-
-    // Parse query parameters
-    const label = searchParams.get('label') as 'negative' | 'neutral' | 'positive' | null
-    const subreddit = searchParams.get('subreddit')
-    const since = searchParams.get('since')
-    const until = searchParams.get('until')
-    const q = searchParams.get('q') // search query
     const page = parseInt(searchParams.get('page') || '1')
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100)
+    const label = searchParams.get('label') as 'negative' | 'neutral' | 'positive' | null
+    const subreddit = searchParams.get('subreddit')
 
-    // Build where clause
-    const where: any = {}
+    const dataFile = join(process.cwd(), 'data', 'reddit-data.json')
+    
+    if (!existsSync(dataFile)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'No Reddit data available. Please run the data fetch script first.',
+        },
+        { status: 404 }
+      )
+    }
 
+    const redditData = JSON.parse(readFileSync(dataFile, 'utf8'))
+    let mentions = redditData.mentions
+
+    // Apply filters
     if (label) {
-      where.label = label
+      mentions = mentions.filter((m: any) => m.label === label)
     }
-
+    
     if (subreddit) {
-      where.subreddit = subreddit
+      mentions = mentions.filter((m: any) => m.subreddit.toLowerCase().includes(subreddit.toLowerCase()))
     }
 
-    if (since) {
-      where.createdUtc = { ...where.createdUtc, gte: new Date(since) }
-    }
-
-    if (until) {
-      where.createdUtc = { ...where.createdUtc, lte: new Date(until) }
-    }
-
-    if (q) {
-      where.OR = [
-        { title: { contains: q, mode: 'insensitive' } },
-        { body: { contains: q, mode: 'insensitive' } },
-        { author: { contains: q, mode: 'insensitive' } },
-      ]
-    }
-
-    // Get total count
-    const total = await prisma.mention.count({ where })
-
-    // Get paginated results
-    const mentions = await prisma.mention.findMany({
-      where,
-      orderBy: { createdUtc: 'desc' },
-      skip: (page - 1) * limit,
-      take: limit,
-    })
-
-    // Transform mentions to include effective label and score
-    const transformedMentions = mentions.map(mention => ({
-      ...mention,
-      effectiveLabel: mention.manualLabel || mention.label,
-      effectiveScore: mention.manualScore || mention.score,
-      isManuallyTagged: !!mention.manualLabel,
-    }))
+    // Apply pagination
+    const startIndex = (page - 1) * limit
+    const endIndex = startIndex + limit
+    const paginatedMentions = mentions.slice(startIndex, endIndex)
 
     return NextResponse.json({
       success: true,
       data: {
-        mentions: transformedMentions,
+        mentions: paginatedMentions,
         pagination: {
           page,
           limit,
-          total,
-          totalPages: Math.ceil(total / limit),
-          hasMore: page * limit < total,
+          total: mentions.length,
+          totalPages: Math.ceil(mentions.length / limit),
+          hasMore: endIndex < mentions.length,
         },
+        lastUpdated: redditData.lastUpdated,
       },
     })
   } catch (error) {
