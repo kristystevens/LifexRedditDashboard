@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readFileSync, existsSync } from 'fs'
-import { join } from 'path'
+import { PrismaClient } from '@prisma/client'
 
-const DATA_FILE = join(process.cwd(), 'data', 'reddit-data.json')
+const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,51 +11,54 @@ export async function GET(request: NextRequest) {
     const label = searchParams.get('label') as 'negative' | 'neutral' | 'positive' | null
     const subreddit = searchParams.get('subreddit')
     const showIgnored = searchParams.get('showIgnored') === 'true'
+    const sortBy = searchParams.get('sortBy') || 'createdUtc'
+    const sortOrder = searchParams.get('sortOrder') || 'desc'
 
-    if (!existsSync(DATA_FILE)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'No Reddit data available. Please run the data fetch script first.',
-        },
-        { status: 404 }
-      )
-    }
-
-    const redditData = JSON.parse(readFileSync(DATA_FILE, 'utf8'))
-    let mentions = redditData.mentions
-
-    // Filter out ignored mentions by default
+    // Build where clause
+    const where: any = {}
+    
     if (!showIgnored) {
-      mentions = mentions.filter((m: any) => !m.ignored)
+      where.ignored = false
     }
-
-    // Apply filters
+    
     if (label) {
-      mentions = mentions.filter((m: any) => m.label === label)
+      where.label = label
     }
-
+    
     if (subreddit) {
-      mentions = mentions.filter((m: any) => m.subreddit.toLowerCase().includes(subreddit.toLowerCase()))
+      where.subreddit = {
+        contains: subreddit,
+        mode: 'insensitive'
+      }
     }
 
-    // Apply pagination
-    const startIndex = (page - 1) * limit
-    const endIndex = startIndex + limit
-    const paginatedMentions = mentions.slice(startIndex, endIndex)
+    // Build orderBy clause
+    const orderBy: any = {}
+    orderBy[sortBy] = sortOrder
+
+    // Get total count
+    const total = await prisma.mention.count({ where })
+
+    // Get paginated results
+    const mentions = await prisma.mention.findMany({
+      where,
+      orderBy,
+      skip: (page - 1) * limit,
+      take: limit,
+    })
 
     return NextResponse.json({
       success: true,
       data: {
-        mentions: paginatedMentions,
+        mentions,
         pagination: {
           page,
           limit,
-          total: mentions.length,
-          totalPages: Math.ceil(mentions.length / limit),
-          hasMore: endIndex < mentions.length,
+          total,
+          totalPages: Math.ceil(total / limit),
+          hasMore: (page * limit) < total,
         },
-        lastUpdated: redditData.lastUpdated,
+        lastUpdated: new Date().toISOString(),
       },
     })
   } catch (error) {
@@ -69,5 +71,7 @@ export async function GET(request: NextRequest) {
       },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { join } from 'path'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 // Helper function to map sentiment to score
 function mapSentimentToScore(label: string, confidence: number = 1.0): number {
@@ -26,97 +27,48 @@ export async function POST(
       )
     }
 
-    const dataFile = join(process.cwd(), 'data', 'reddit-data.json')
-    
-    if (!existsSync(dataFile)) {
-      return NextResponse.json(
-        { success: false, error: 'No Reddit data available' },
-        { status: 404 }
-      )
-    }
+    // Find the mention
+    const mention = await prisma.mention.findUnique({
+      where: { id }
+    })
 
-    // Read current data
-    const redditData = JSON.parse(readFileSync(dataFile, 'utf8'))
-    
-    // Find and update the mention
-    const mentionIndex = redditData.mentions.findIndex((m: any) => m.id === id)
-    if (mentionIndex === -1) {
+    if (!mention) {
       return NextResponse.json(
         { success: false, error: 'Mention not found' },
         { status: 404 }
       )
     }
 
-    const mention = redditData.mentions[mentionIndex]
     const originalLabel = mention.label
     const originalScore = mention.score
 
     // Calculate new score based on manual label
     const newScore = mapSentimentToScore(label, 1.0) // Use max confidence for manual tags
 
-    // Update the mention
-    redditData.mentions[mentionIndex] = {
-      ...mention,
-      label: label,
-      score: newScore,
-      manualLabel: label,
-      manualScore: newScore,
-      taggedBy,
-      taggedAt: new Date().toISOString(),
-    }
-
-    // Recalculate stats
-    const labelCounts = { negative: 0, neutral: 0, positive: 0 }
-    let totalScore = 0
-    const subredditCounts: Record<string, { count: number, totalScore: number }> = {}
-
-    redditData.mentions.forEach((m: any) => {
-      labelCounts[m.label as keyof typeof labelCounts]++
-      totalScore += m.score
-      
-      if (!subredditCounts[m.subreddit]) {
-        subredditCounts[m.subreddit] = { count: 0, totalScore: 0 }
+    // Update the mention in database
+    const updatedMention = await prisma.mention.update({
+      where: { id },
+      data: {
+        label: label,
+        score: newScore,
+        manualLabel: label,
+        manualScore: newScore,
+        taggedBy,
+        taggedAt: new Date(),
       }
-      subredditCounts[m.subreddit].count++
-      subredditCounts[m.subreddit].totalScore += m.score
     })
-
-    const averageScore = redditData.mentions.length > 0 ? totalScore / redditData.mentions.length : 0
-
-    // Get top negative mentions
-    const topNegative = redditData.mentions
-      .filter((m: any) => m.label === 'negative')
-      .sort((a: any, b: any) => a.score - b.score)
-      .slice(0, 10)
-
-    // Format subreddit stats
-    const countsBySubreddit = Object.entries(subredditCounts).map(([subreddit, data]) => ({
-      subreddit,
-      count: data.count,
-      averageScore: data.totalScore / data.count,
-    })).sort((a, b) => b.count - a.count)
-
-    // Update the data object
-    redditData.stats = labelCounts
-    redditData.averageScore = averageScore
-    redditData.countsBySubreddit = countsBySubreddit
-    redditData.topNegative = topNegative
-    redditData.lastUpdated = new Date().toISOString()
-
-    // Save updated data
-    writeFileSync(dataFile, JSON.stringify(redditData, null, 2))
 
     return NextResponse.json({
       success: true,
       message: 'Mention tagged successfully',
       data: {
-        id: redditData.mentions[mentionIndex].id,
+        id: updatedMention.id,
         originalLabel,
         manualLabel: label,
         originalScore,
         manualScore: newScore,
         taggedBy,
-        taggedAt: redditData.mentions[mentionIndex].taggedAt,
+        taggedAt: updatedMention.taggedAt,
       },
     })
   } catch (error) {
@@ -129,6 +81,8 @@ export async function POST(
       },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }
 
@@ -139,50 +93,38 @@ export async function DELETE(
   try {
     const { id } = params
 
-    const dataFile = join(process.cwd(), 'data', 'reddit-data.json')
-    
-    if (!existsSync(dataFile)) {
-      return NextResponse.json(
-        { success: false, error: 'No Reddit data available' },
-        { status: 404 }
-      )
-    }
-
-    // Read current data
-    const redditData = JSON.parse(readFileSync(dataFile, 'utf8'))
-    
     // Find the mention
-    const mentionIndex = redditData.mentions.findIndex((m: any) => m.id === id)
-    if (mentionIndex === -1) {
+    const mention = await prisma.mention.findUnique({
+      where: { id }
+    })
+
+    if (!mention) {
       return NextResponse.json(
         { success: false, error: 'Mention not found' },
         { status: 404 }
       )
     }
 
-    const mention = redditData.mentions[mentionIndex]
-
     // Remove manual override (revert to original AI classification)
     // For now, we'll keep the current label/score since we don't store original values
     // In a real implementation, you'd want to store original AI classifications
-    redditData.mentions[mentionIndex] = {
-      ...mention,
-      manualLabel: undefined,
-      manualScore: undefined,
-      taggedBy: undefined,
-      taggedAt: undefined,
-    }
-
-    // Save updated data
-    writeFileSync(dataFile, JSON.stringify(redditData, null, 2))
+    const updatedMention = await prisma.mention.update({
+      where: { id },
+      data: {
+        manualLabel: null,
+        manualScore: null,
+        taggedBy: null,
+        taggedAt: null,
+      }
+    })
 
     return NextResponse.json({
       success: true,
       message: 'Manual tag removed successfully',
       data: {
-        id: redditData.mentions[mentionIndex].id,
-        label: mention.label,
-        score: mention.score,
+        id: updatedMention.id,
+        label: updatedMention.label,
+        score: updatedMention.score,
       },
     })
   } catch (error) {
@@ -195,5 +137,7 @@ export async function DELETE(
       },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }

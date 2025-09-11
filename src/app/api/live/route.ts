@@ -1,42 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readFileSync, existsSync } from 'fs'
-import { join } from 'path'
+import { PrismaClient } from '@prisma/client'
 
-const DATA_FILE = join(process.cwd(), 'data', 'reddit-data.json')
+const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const since = searchParams.get('since')
 
-    if (!existsSync(DATA_FILE)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'No Reddit data available. Please run the data fetch script first.',
-        },
-        { status: 404 }
-      )
+    // Build where clause
+    const where: any = { ignored: false }
+    
+    if (since) {
+      where.createdUtc = {
+        gte: new Date(since)
+      }
     }
 
-    const redditData = JSON.parse(readFileSync(DATA_FILE, 'utf8'))
-    let mentions = redditData.mentions
+    // Get latest mentions
+    const mentions = await prisma.mention.findMany({
+      where,
+      orderBy: { createdUtc: 'desc' },
+      take: 10
+    })
 
-    // Filter out ignored mentions
-    mentions = mentions.filter((mention: any) => !mention.ignored)
+    // Get stats
+    const totalMentions = await prisma.mention.count({ where: { ignored: false } })
+    const sentimentCounts = await prisma.mention.groupBy({
+      by: ['label'],
+      where: { ignored: false },
+      _count: { label: true }
+    })
 
-    // Filter by timestamp if provided
-    if (since) {
-      const sinceDate = new Date(since)
-      mentions = mentions.filter((mention: any) =>
-        new Date(mention.createdUtc) >= sinceDate
-      )
+    const stats = {
+      totalMentions,
+      countsByLabel: sentimentCounts.reduce((acc: any, item) => {
+        acc[item.label] = item._count.label
+        return acc
+      }, {})
     }
 
     const liveData = {
-      mentions: mentions.slice(0, 10), // Show latest 10
-      stats: redditData.stats,
-      timestamp: redditData.lastUpdated,
+      mentions,
+      stats,
+      timestamp: new Date().toISOString(),
     }
 
     return NextResponse.json({
@@ -45,7 +52,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching live data:', error)
-    
+
     return NextResponse.json(
       {
         success: false,
@@ -53,5 +60,7 @@ export async function GET(request: NextRequest) {
       },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }
