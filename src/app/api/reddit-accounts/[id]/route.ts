@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { join } from 'path'
-import bcrypt from 'bcryptjs'
 
 const ACCOUNTS_FILE = join(process.cwd(), 'data', 'reddit-accounts.json')
 
 interface RedditAccount {
   id: string
   username: string
-  passwordHash: string
+  email?: string
+  password: string
   createdAt: string
   updatedAt: string
   isActive: boolean
@@ -37,12 +37,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       )
     }
     
-    // Return account without password hash
-    const { passwordHash: _, ...safeAccount } = account
-    
     return NextResponse.json({
       success: true,
-      data: safeAccount
+      data: account
     })
   } catch (error) {
     console.error('Error fetching Reddit account:', error)
@@ -57,7 +54,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    const { username, password, notes, isActive } = await request.json()
+    const { username, email, password, notes, isActive } = await request.json()
     
     if (!existsSync(ACCOUNTS_FILE)) {
       return NextResponse.json(
@@ -94,9 +91,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     
     // Update account fields
     if (username) account.username = username
+    if (email !== undefined) account.email = email || undefined
     if (password) {
-      const saltRounds = 12
-      account.passwordHash = await bcrypt.hash(password, saltRounds)
+      account.password = password
     }
     if (notes !== undefined) account.notes = notes
     if (isActive !== undefined) account.isActive = isActive
@@ -109,11 +106,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     writeFileSync(ACCOUNTS_FILE, JSON.stringify(data, null, 2), 'utf8')
     
     // Return updated account without password hash
-    const { passwordHash: _, ...safeAccount } = account
-    
     return NextResponse.json({
       success: true,
-      data: safeAccount
+      data: account
     })
   } catch (error) {
     console.error('Error updating Reddit account:', error)

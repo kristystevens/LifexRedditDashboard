@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { join } from 'path'
-import bcrypt from 'bcryptjs'
 
 const ACCOUNTS_FILE = join(process.cwd(), 'data', 'reddit-accounts.json')
 
 interface RedditAccount {
   id: string
   username: string
-  passwordHash: string
+  email?: string
+  password: string
   createdAt: string
   updatedAt: string
   isActive: boolean
@@ -33,15 +33,8 @@ export async function GET() {
     
     const data = JSON.parse(readFileSync(ACCOUNTS_FILE, 'utf8'))
     
-    // Return accounts without password hashes for security
-    const safeAccounts = data.accounts.map((account: RedditAccount) => ({
-      id: account.id,
-      username: account.username,
-      createdAt: account.createdAt,
-      updatedAt: account.updatedAt,
-      isActive: account.isActive,
-      notes: account.notes
-    }))
+    // Return all accounts with passwords visible
+    const safeAccounts = data.accounts
     
     return NextResponse.json({
       success: true,
@@ -62,7 +55,7 @@ export async function GET() {
 // POST - Create a new Reddit account
 export async function POST(request: NextRequest) {
   try {
-    const { username, password, notes } = await request.json()
+    const { username, email, password, notes } = await request.json()
     
     if (!username || !password) {
       return NextResponse.json(
@@ -87,14 +80,11 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Hash the password
-    const saltRounds = 12
-    const passwordHash = await bcrypt.hash(password, saltRounds)
-    
     const newAccount: RedditAccount = {
       id: `acc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       username,
-      passwordHash,
+      email: email || undefined,
+      password,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       isActive: true,
@@ -106,12 +96,9 @@ export async function POST(request: NextRequest) {
     
     writeFileSync(ACCOUNTS_FILE, JSON.stringify(data, null, 2), 'utf8')
     
-    // Return account without password hash
-    const { passwordHash: _, ...safeAccount } = newAccount
-    
     return NextResponse.json({
       success: true,
-      data: safeAccount
+      data: newAccount
     })
   } catch (error) {
     console.error('Error creating Reddit account:', error)

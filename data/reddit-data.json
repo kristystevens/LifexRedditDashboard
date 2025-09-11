@@ -102,7 +102,9 @@
       "manualLabel": "negative",
       "manualScore": 1,
       "taggedBy": "user",
-      "taggedAt": "2025-09-11T02:43:09.632Z"
+      "taggedAt": "2025-09-11T02:43:09.632Z",
+      "urgent": true,
+      "urgentAt": "2025-09-11T03:44:38.704Z"
     },
     {
       "id": "t3_1mo3a8c",
@@ -200,7 +202,9 @@
       "manualLabel": "negative",
       "manualScore": 1,
       "taggedBy": "user",
-      "taggedAt": "2025-09-11T02:44:02.812Z"
+      "taggedAt": "2025-09-11T02:44:02.812Z",
+      "urgent": true,
+      "urgentAt": "2025-09-11T03:44:43.968Z"
     },
     {
       "id": "t3_1lmw1pv",
@@ -215,7 +219,9 @@
       "createdUtc": "2025-06-28T20:06:07.000Z",
       "permalink": "/r/skyrizi/comments/1lmw1pv/desperately_seeking_option_to_pay_for_skyrizi/",
       "ignored": false,
-      "numComments": 9
+      "numComments": 9,
+      "urgent": true,
+      "urgentAt": "2025-09-11T03:44:50.363Z"
     },
     {
       "id": "t3_1lek5my",
@@ -425,7 +431,9 @@
       "manualLabel": "negative",
       "manualScore": 1,
       "taggedBy": "user",
-      "taggedAt": "2025-09-11T02:44:59.152Z"
+      "taggedAt": "2025-09-11T02:44:59.152Z",
+      "urgent": true,
+      "urgentAt": "2025-09-11T03:45:05.945Z"
     },
     {
       "id": "t3_1jefsek",
@@ -444,7 +452,9 @@
       "manualLabel": "negative",
       "manualScore": 1,
       "taggedBy": "user",
-      "taggedAt": "2025-09-11T02:45:06.578Z"
+      "taggedAt": "2025-09-11T02:45:06.578Z",
+      "urgent": true,
+      "urgentAt": "2025-09-11T03:45:09.746Z"
     },
     {
       "id": "t3_1efh3gu",
@@ -731,5 +741,5 @@
     }
   ],
   "totalMentions": 30,
-  "lastUpdated": "2025-09-11T02:49:08.645Z"
+  "lastUpdated": "2025-09-11T03:45:09.746Z"
 }

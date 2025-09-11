@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { readFileSync, existsSync } from 'fs'
-import { join } from 'path'
+import { prisma } from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   try {

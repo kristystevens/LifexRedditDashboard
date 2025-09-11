@@ -6,8 +6,8 @@ import LiveDashboard from '@/components/LiveDashboard'
 import MentionTagger from '@/components/MentionTagger'
 import MentionFilters from '@/components/MentionFilters'
 import CommentsDropdown from '@/components/CommentsDropdown'
-import Navigation from '@/components/layout/navigation'
 import RedditAccountsPage from '@/components/RedditAccountsPage'
+import AnalyticsPage from '@/components/AnalyticsPage'
 
 interface Stats {
   countsByLabel: {
@@ -51,7 +51,7 @@ interface Mention {
 }
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'accounts'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'accounts' | 'analytics'>('dashboard')
   const [stats, setStats] = useState<Stats | null>(null)
   const [mentions, setMentions] = useState<Mention[]>([])
   const [loading, setLoading] = useState(true)
@@ -294,10 +294,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      <div className="lg:pl-64">
-        <main className="pt-2 pb-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="pt-6 pb-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header - Moved to top */}
         <div className="text-center mb-6">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Lifex Reddit Monitor</h1>
@@ -332,6 +330,19 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4" />
                   Reddit Accounts
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('analytics')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'analytics'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Analytics
                 </div>
               </button>
             </nav>
@@ -576,9 +587,12 @@ export default function Home() {
         {activeTab === 'accounts' && (
           <RedditAccountsPage />
         )}
-          </div>
-        </main>
-      </div>
+
+        {activeTab === 'analytics' && (
+          <AnalyticsPage />
+        )}
+        </div>
+      </main>
     </div>
   )
 }
