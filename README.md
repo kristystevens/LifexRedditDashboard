@@ -11,6 +11,8 @@ A real-time sentiment analysis system that monitors Reddit for mentions of "Life
 - ⏰ **Automated Scheduling**: Runs every 5 minutes via cron job
 - 🖥️ **Dashboard**: Web interface to view mentions and statistics
 - 💾 **SQLite Database**: Stores all mentions with Prisma ORM
+- 🐳 **Docker Support**: Easy deployment with Docker and Docker Compose
+- ☁️ **AWS Ready**: Pre-configured for AWS App Runner and EC2 deployment
 
 ## Quick Start
 
@@ -19,7 +21,7 @@ A real-time sentiment analysis system that monitors Reddit for mentions of "Life
 Copy the environment template and fill in your API keys:
 
 ```bash
-cp env.template .env
+cp env.production.template .env
 ```
 
 Edit `.env` with your credentials:
@@ -50,29 +52,53 @@ CRON_SECRET=supersecretstring
 START_FROM_ISO=2023-01-01T00:00:00Z
 
 # Database
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="file:./data/prod.db"
 ```
 
-### 2. Install Dependencies
+### 2. Docker Deployment (Recommended)
 
 ```bash
+# Build and start the application
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the application
+docker-compose down
+```
+
+### 3. Local Development
+
+```bash
+# Install dependencies
 npm install
-```
 
-### 3. Setup Database
-
-```bash
+# Setup database
 npx prisma generate
 npx prisma db push
-```
 
-### 4. Run Development Server
-
-```bash
+# Run development server
 npm run dev
 ```
 
 Visit `http://localhost:3000` to see the dashboard.
+
+## Deployment Options
+
+### AWS App Runner (Easiest)
+1. Push to GitHub
+2. Connect to AWS App Runner
+3. Set environment variables
+4. Deploy automatically
+
+### AWS EC2 (More Control)
+1. Launch EC2 instance
+2. Run the deployment script
+3. Copy your application files
+4. Start with Docker Compose
+
+See `AWS-DEPLOYMENT-GUIDE.md` for detailed instructions.
 
 ## API Endpoints
 
@@ -186,32 +212,6 @@ startCronJob()
   ingestedAt: DateTime    // When we processed this mention
 }
 ```
-
-## Deployment
-
-### Vercel (Recommended)
-
-1. Push to GitHub
-2. Connect to Vercel
-3. Set environment variables in Vercel dashboard
-4. Deploy
-
-### Self-Hosted
-
-1. Build the application:
-   ```bash
-   npm run build
-   ```
-
-2. Start the production server:
-   ```bash
-   npm start
-   ```
-
-3. Set up a cron job to call the ingestion endpoint every 5 minutes:
-   ```bash
-   */5 * * * * curl -X POST https://yourdomain.com/api/ingest/run -H "x-cron-secret: your-secret"
-   ```
 
 ## Reddit API Setup
 
