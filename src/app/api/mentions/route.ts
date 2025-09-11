@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { readFileSync, existsSync } from 'fs'
+import { join } from 'path'
+
+const DATA_FILE = join(process.cwd(), 'data', 'reddit-data.json')
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,67 +13,50 @@ export async function GET(request: NextRequest) {
     const subreddit = searchParams.get('subreddit')
     const showIgnored = searchParams.get('showIgnored') === 'true'
 
-    // Build where clause for filtering
-    const where: any = {}
-    
+    if (!existsSync(DATA_FILE)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'No Reddit data available. Please run the data fetch script first.',
+        },
+        { status: 404 }
+      )
+    }
+
+    const redditData = JSON.parse(readFileSync(DATA_FILE, 'utf8'))
+    let mentions = redditData.mentions
+
+    // Filter out ignored mentions by default
+    if (!showIgnored) {
+      mentions = mentions.filter((m: any) => !m.ignored)
+    }
+
+    // Apply filters
     if (label) {
-      where.label = label
+      mentions = mentions.filter((m: any) => m.label === label)
     }
-    
+
     if (subreddit) {
-      where.subreddit = {
-        contains: subreddit,
-        mode: 'insensitive'
-      }
+      mentions = mentions.filter((m: any) => m.subreddit.toLowerCase().includes(subreddit.toLowerCase()))
     }
 
-    // Get total count for pagination
-    const total = await prisma.mention.count({ where })
-
-    // Get paginated mentions
-    const mentions = await prisma.mention.findMany({
-      where,
-      orderBy: {
-        createdUtc: 'desc'
-      },
-      skip: (page - 1) * limit,
-      take: limit,
-    })
-
-    // Transform mentions to match frontend expectations
-    const transformedMentions = mentions.map(mention => ({
-      id: mention.id,
-      type: mention.type,
-      subreddit: mention.subreddit,
-      permalink: mention.permalink,
-      author: mention.author,
-      title: mention.title,
-      body: mention.body,
-      createdUtc: mention.createdUtc.toISOString(),
-      label: mention.label,
-      confidence: mention.confidence,
-      score: mention.score,
-      ignored: false, // We'll add this field to the schema later
-      urgent: false,  // We'll add this field to the schema later
-      numComments: 0, // We'll add this field to the schema later
-      manualLabel: mention.manualLabel,
-      manualScore: mention.manualScore,
-      taggedBy: mention.taggedBy,
-      taggedAt: mention.taggedAt?.toISOString(),
-    }))
+    // Apply pagination
+    const startIndex = (page - 1) * limit
+    const endIndex = startIndex + limit
+    const paginatedMentions = mentions.slice(startIndex, endIndex)
 
     return NextResponse.json({
       success: true,
       data: {
-        mentions: transformedMentions,
+        mentions: paginatedMentions,
         pagination: {
           page,
           limit,
-          total,
-          totalPages: Math.ceil(total / limit),
-          hasMore: page * limit < total,
+          total: mentions.length,
+          totalPages: Math.ceil(mentions.length / limit),
+          hasMore: endIndex < mentions.length,
         },
-        lastUpdated: new Date().toISOString(),
+        lastUpdated: redditData.lastUpdated,
       },
     })
   } catch (error) {

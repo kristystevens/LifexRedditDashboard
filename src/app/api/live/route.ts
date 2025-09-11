@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { readFileSync, existsSync } from 'fs'
+import { join } from 'path'
+
+const DATA_FILE = join(process.cwd(), 'data', 'reddit-data.json')
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const since = searchParams.get('since')
 
-    const dataFile = join(process.cwd(), 'data', 'reddit-data.json')
-    
-    if (!existsSync(dataFile)) {
+    if (!existsSync(DATA_FILE)) {
       return NextResponse.json(
         {
           success: false,
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const redditData = JSON.parse(readFileSync(dataFile, 'utf8'))
+    const redditData = JSON.parse(readFileSync(DATA_FILE, 'utf8'))
     let mentions = redditData.mentions
 
     // Filter out ignored mentions

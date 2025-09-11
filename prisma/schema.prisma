@@ -29,10 +29,17 @@ model Mention {
   manualScore     Int?                   // Manual score override
   taggedBy        String?                // Who tagged this mention
   taggedAt        DateTime?              // When it was manually tagged
+  
+  // Manual user actions
+  ignored         Boolean  @default(false) // User ignored this mention
+  urgent          Boolean  @default(false) // User marked as urgent
+  numComments     Int      @default(0)     // Number of comments (for posts)
 
   @@index([createdUtc])
   @@index([subreddit])
   @@index([label])
   @@index([score])
   @@index([manualLabel])
+  @@index([ignored])
+  @@index([urgent])
 }

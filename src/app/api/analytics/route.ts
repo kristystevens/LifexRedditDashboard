@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { readFileSync, existsSync } from 'fs'
+import { join } from 'path'
+
+const DATA_FILE = join(process.cwd(), 'data', 'reddit-data.json')
 
 interface RedditMention {
   id: string
@@ -40,6 +43,30 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const timeRange = searchParams.get('timeRange') || '30d'
     
+    if (!existsSync(DATA_FILE)) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          analyticsData: [],
+          sentimentStats: {
+            total: 0,
+            negative: 0,
+            neutral: 0,
+            positive: 0,
+            negativePercentage: 0,
+            neutralPercentage: 0,
+            positivePercentage: 0
+          }
+        }
+      })
+    }
+    
+    const data = JSON.parse(readFileSync(DATA_FILE, 'utf8'))
+    const mentions: RedditMention[] = data.mentions || []
+    
+    // Filter out ignored mentions
+    const filteredMentions = mentions.filter(mention => !mention.ignored)
+    
     // Calculate date range
     const now = new Date()
     let startDate: Date
@@ -60,23 +87,18 @@ export async function GET(request: NextRequest) {
         break
     }
     
-    // Get mentions within date range
-    const mentions = await prisma.mention.findMany({
-      where: {
-        createdUtc: {
-          gte: startDate
-        }
-      },
-      orderBy: {
-        createdUtc: 'asc'
-      }
+    // Filter mentions by date range
+    const filteredByDate = filteredMentions.filter(mention => {
+      const mentionDate = new Date(mention.createdUtc)
+      return mentionDate >= startDate
     })
     
     // Group mentions by date
-    const groupedByDate: { [key: string]: typeof mentions } = {}
+    const groupedByDate: { [key: string]: RedditMention[] } = {}
     
-    mentions.forEach(mention => {
-      const dateKey = mention.createdUtc.toISOString().split('T')[0] // YYYY-MM-DD format
+    filteredByDate.forEach(mention => {
+      const date = new Date(mention.createdUtc)
+      const dateKey = date.toISOString().split('T')[0] // YYYY-MM-DD format
       
       if (!groupedByDate[dateKey]) {
         groupedByDate[dateKey] = []
@@ -86,26 +108,26 @@ export async function GET(request: NextRequest) {
     
     // Create analytics data
     const analyticsData: AnalyticsData[] = Object.entries(groupedByDate)
-      .map(([date, dayMentions]) => {
-        const negative = dayMentions.filter(m => m.label === 'negative').length
-        const neutral = dayMentions.filter(m => m.label === 'neutral').length
-        const positive = dayMentions.filter(m => m.label === 'positive').length
+      .map(([date, mentions]) => {
+        const negative = mentions.filter(m => m.label === 'negative').length
+        const neutral = mentions.filter(m => m.label === 'neutral').length
+        const positive = mentions.filter(m => m.label === 'positive').length
         
         return {
           date,
           negative,
           neutral,
           positive,
-          total: dayMentions.length
+          total: mentions.length
         }
       })
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     
     // Calculate overall sentiment stats
-    const total = mentions.length
-    const negative = mentions.filter(m => m.label === 'negative').length
-    const neutral = mentions.filter(m => m.label === 'neutral').length
-    const positive = mentions.filter(m => m.label === 'positive').length
+    const total = filteredByDate.length
+    const negative = filteredByDate.filter(m => m.label === 'negative').length
+    const neutral = filteredByDate.filter(m => m.label === 'neutral').length
+    const positive = filteredByDate.filter(m => m.label === 'positive').length
     
     const sentimentStats: SentimentStats = {
       total,
