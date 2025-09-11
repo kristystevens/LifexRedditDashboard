@@ -25,11 +25,14 @@ export async function GET(request: NextRequest) {
     const redditData = JSON.parse(readFileSync(dataFile, 'utf8'))
     let mentions = redditData.mentions
 
+    // Filter out ignored mentions by default
+    mentions = mentions.filter((m: any) => !m.ignored)
+
     // Apply filters
     if (label) {
       mentions = mentions.filter((m: any) => m.label === label)
     }
-    
+
     if (subreddit) {
       mentions = mentions.filter((m: any) => m.subreddit.toLowerCase().includes(subreddit.toLowerCase()))
     }

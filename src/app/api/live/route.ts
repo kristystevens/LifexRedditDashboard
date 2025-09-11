@@ -22,10 +22,13 @@ export async function GET(request: NextRequest) {
     const redditData = JSON.parse(readFileSync(dataFile, 'utf8'))
     let mentions = redditData.mentions
 
+    // Filter out ignored mentions
+    mentions = mentions.filter((mention: any) => !mention.ignored)
+
     // Filter by timestamp if provided
     if (since) {
       const sinceDate = new Date(since)
-      mentions = mentions.filter((mention: any) => 
+      mentions = mentions.filter((mention: any) =>
         new Date(mention.createdUtc) >= sinceDate
       )
     }

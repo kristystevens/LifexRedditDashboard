@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { TrendingUp, TrendingDown, Minus, ExternalLink, RefreshCw } from 'lucide-react'
 import LiveDashboard from '@/components/LiveDashboard'
 import MentionTagger from '@/components/MentionTagger'
+import MentionFilters from '@/components/MentionFilters'
 
 interface Stats {
   countsByLabel: {
@@ -13,6 +14,7 @@ interface Stats {
   }
   averageScore: number
   totalMentions: number
+  totalIgnored: number
   topNegative: Array<{
     id: string
     subreddit: string
@@ -38,6 +40,9 @@ interface Mention {
   manualScore?: number
   taggedBy?: string
   taggedAt?: string
+  ignored?: boolean
+  ignoredAt?: string
+  numComments?: number
 }
 
 export default function Home() {
@@ -46,12 +51,22 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [showIgnored, setShowIgnored] = useState(false)
+  const [filters, setFilters] = useState({
+    subreddit: '',
+    sentiment: '',
+    dateRange: { start: '', end: '' },
+    showIgnored: false,
+    minComments: 0
+  })
+  const [allMentions, setAllMentions] = useState<Mention[]>([])
+  const [filteredMentions, setFilteredMentions] = useState<Mention[]>([])
 
   const fetchData = async () => {
     try {
       const [statsRes, mentionsRes] = await Promise.all([
         fetch('/api/stats'),
-        fetch('/api/mentions?limit=10')
+        fetch('/api/mentions?limit=100')
       ])
 
       if (statsRes.ok) {
@@ -61,7 +76,9 @@ export default function Home() {
 
       if (mentionsRes.ok) {
         const mentionsData = await mentionsRes.json()
+        setAllMentions(mentionsData.data.mentions)
         setMentions(mentionsData.data.mentions)
+        setLastUpdated(new Date(mentionsData.data.lastUpdated))
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -108,6 +125,105 @@ export default function Home() {
     
     // Refresh stats to reflect the change
     fetchData()
+  }
+
+  const handleIgnoreToggle = (mentionId: string, isIgnored: boolean) => {
+    setAllMentions(prevMentions =>
+      prevMentions.map(mention =>
+        mention.id === mentionId
+          ? {
+              ...mention,
+              ignored: isIgnored,
+              ignoredAt: isIgnored ? new Date().toISOString() : undefined,
+            }
+          : mention
+      )
+    )
+  }
+
+  const applyFilters = (mentionsToFilter: Mention[], currentFilters: typeof filters) => {
+    let filtered = [...mentionsToFilter]
+
+    // Apply ignored filter
+    if (!currentFilters.showIgnored) {
+      filtered = filtered.filter(mention => !mention.ignored)
+    }
+
+    // Apply subreddit filter
+    if (currentFilters.subreddit) {
+      filtered = filtered.filter(mention => 
+        mention.subreddit.toLowerCase().includes(currentFilters.subreddit.toLowerCase())
+      )
+    }
+
+    // Apply sentiment filter
+    if (currentFilters.sentiment) {
+      filtered = filtered.filter(mention => mention.label === currentFilters.sentiment)
+    }
+
+    // Apply date range filter
+    if (currentFilters.dateRange.start) {
+      const startDate = new Date(currentFilters.dateRange.start)
+      filtered = filtered.filter(mention => 
+        new Date(mention.createdUtc) >= startDate
+      )
+    }
+
+    if (currentFilters.dateRange.end) {
+      const endDate = new Date(currentFilters.dateRange.end)
+      endDate.setHours(23, 59, 59, 999) // End of day
+      filtered = filtered.filter(mention => 
+        new Date(mention.createdUtc) <= endDate
+      )
+    }
+
+    // Apply comments filter
+    if (currentFilters.minComments > 0) {
+      filtered = filtered.filter(mention => 
+        (mention.numComments || 0) >= currentFilters.minComments
+      )
+    }
+
+    return filtered
+  }
+
+  const handleFiltersChange = (newFilters: typeof filters) => {
+    setFilters(newFilters)
+    setShowIgnored(newFilters.showIgnored)
+    
+    const filtered = applyFilters(allMentions, newFilters)
+    setFilteredMentions(filtered)
+    setMentions(filtered)
+  }
+
+  // Get unique subreddits for filter dropdown
+  const availableSubreddits = Array.from(new Set(allMentions.map(m => m.subreddit))).sort()
+
+  // Function to highlight mentions of "lifex" and "lifex research"
+  const highlightMentions = (text: string) => {
+    if (!text) return text
+    
+    // Create regex patterns for case-insensitive matching
+    const lifexPattern = /\b(lifex)\b/gi
+    const lifexResearchPattern = /\b(lifex research)\b/gi
+    
+    // First highlight "lifex research" (longer phrase first)
+    let highlighted = text.replace(lifexResearchPattern, '<mark class="bg-yellow-200 px-1 rounded">$1</mark>')
+    
+    // Then highlight standalone "lifex" (but not if it's part of "lifex research")
+    highlighted = highlighted.replace(lifexPattern, (match, p1, offset, string) => {
+      // Check if this "lifex" is part of "lifex research" that was already highlighted
+      const beforeMatch = string.substring(Math.max(0, offset - 7), offset)
+      const afterMatch = string.substring(offset + p1.length, Math.min(string.length, offset + p1.length + 8))
+      
+      if (beforeMatch.toLowerCase().includes('lifex') || afterMatch.toLowerCase().includes('research')) {
+        return match // Don't highlight if it's part of "lifex research"
+      }
+      
+      return `<mark class="bg-yellow-200 px-1 rounded">${p1}</mark>`
+    })
+    
+    return highlighted
   }
 
 
@@ -173,8 +289,11 @@ export default function Home() {
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">Total Mentions</p>
+                  <p className="text-sm font-medium text-gray-500 mb-1">Active Mentions</p>
                   <p className="text-3xl font-bold text-gray-900">{stats.totalMentions}</p>
+                  {stats.totalIgnored > 0 && (
+                    <p className="text-xs text-gray-400 mt-1">{stats.totalIgnored} ignored</p>
+                  )}
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                   <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -228,75 +347,36 @@ export default function Home() {
           </div>
         )}
 
-        {/* Advanced Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Advanced Filters</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Date Range:</label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>All Time</option>
-                <option>Last 7 days</option>
-                <option>Last 30 days</option>
-                <option>Last 90 days</option>
-                <option>Last year</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Subreddit:</label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>All Subreddits</option>
-                <option>investing</option>
-                <option>biotech</option>
-                <option>longevity</option>
-                <option>stocks</option>
-                <option>HealthInsurance</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Sentiment:</label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>All Sentiments</option>
-                <option>Positive</option>
-                <option>Neutral</option>
-                <option>Negative</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Min Comments:</label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>Any</option>
-                <option>1+</option>
-                <option>5+</option>
-                <option>10+</option>
-                <option>25+</option>
-              </select>
-            </div>
-          </div>
-          <div className="mt-4 flex justify-end">
-            <button
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="flex items-center gap-2 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
-          </div>
-        </div>
 
         {/* Live Dashboard */}
         <LiveDashboard />
 
+        {/* Filters */}
+        <MentionFilters
+          onFiltersChange={handleFiltersChange}
+          availableSubreddits={availableSubreddits}
+          totalMentions={allMentions.length}
+          activeMentions={mentions.length}
+        />
+
         {/* All Lifex Mentions */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">All Lifex Mentions</h2>
-            <p className="text-sm text-gray-500 mt-1">Showing {mentions.length} mentions</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">All Lifex Mentions</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  {filters.showIgnored 
+                    ? `Showing ${mentions.length} mentions (including ${mentions.filter(m => m.ignored).length} ignored)`
+                    : `Showing ${mentions.filter(m => !m.ignored).length} active mentions`
+                  }
+                </p>
+              </div>
+            </div>
           </div>
           <div className="divide-y divide-gray-200">
             {mentions.map((mention) => (
-              <div key={mention.id} className="p-6 hover:bg-gray-50">
+              <div key={mention.id} className={`p-6 hover:bg-gray-50 ${mention.ignored ? 'opacity-60 bg-gray-50' : ''}`}>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -331,8 +411,12 @@ export default function Home() {
                         currentLabel={mention.label}
                         currentScore={mention.score}
                         isManuallyTagged={!!mention.manualLabel}
+                        isIgnored={!!mention.ignored}
                         onTagUpdate={(newLabel, newScore) => 
                           handleMentionTagUpdate(mention.id, newLabel, newScore)
+                        }
+                        onIgnoreToggle={(isIgnored) => 
+                          handleIgnoreToggle(mention.id, isIgnored)
                         }
                       />
         </div>
@@ -351,15 +435,18 @@ export default function Home() {
                     </a>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                       <span>Score: {mention.score}</span>
-                      <span>Comments: 0</span>
+                      <span>Comments: {mention.numComments || 0}</span>
                       <span className="capitalize">{mention.type}</span>
                       {mention.manualLabel && (
                         <span className="text-blue-600 text-xs font-medium">Manually tagged</span>
                       )}
+                      {mention.ignored && (
+                        <span className="text-red-600 text-xs font-medium">Ignored</span>
+                      )}
                       <a
                         href={`https://reddit.com${mention.permalink}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+          target="_blank"
+          rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-800 font-medium"
                       >
                         View on Reddit →

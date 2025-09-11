@@ -14,6 +14,7 @@
     "start:monitor": "tsx scripts/start-cron.ts",
     "quick:ingest": "tsx scripts/quick-ingest.ts",
     "fetch:reddit": "tsx scripts/fetch-reddit-data.ts",
+    "fetch:public-reddit": "tsx scripts/fetch-public-reddit-data.ts",
     "start:reddit-cron": "tsx scripts/reddit-data-cron.ts"
   },
   "dependencies": {
