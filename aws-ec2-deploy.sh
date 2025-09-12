@@ -9,6 +9,10 @@ echo "🚀 Deploying Lifex Reddit Monitor to AWS EC2..."
 echo "📦 Updating system packages..."
 sudo yum update -y
 
+# Install Git, wget, and unzip
+echo "📥 Installing required tools..."
+sudo yum install -y git wget unzip
+
 # Install Docker
 echo "🐳 Installing Docker..."
 sudo yum install -y docker
@@ -29,6 +33,18 @@ cd /opt/lifex-monitor
 
 # Create data directory
 mkdir -p data
+
+# Download and extract application
+echo "📥 Downloading application files..."
+wget https://github.com/kristystevens/LifexRedditDashboard/archive/refs/heads/main.zip
+unzip main.zip
+mv LifexRedditDashboard-main/* .
+mv LifexRedditDashboard-main/.* . 2>/dev/null || true
+rm -rf LifexRedditDashboard-main main.zip
+
+# Set up environment
+echo "⚙️ Setting up environment..."
+cp env.production.template .env
 
 # Create production docker-compose.yml for AWS
 echo "📝 Creating AWS production configuration..."
