@@ -83,7 +83,7 @@ export default function MentionTagger({
     setIsLoading(true)
     try {
       const response = await fetch(`/api/mentions/${mentionId}/ignore`, {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -108,7 +108,7 @@ export default function MentionTagger({
     setIsLoading(true)
     try {
       const response = await fetch(`/api/mentions/${mentionId}/urgent`, {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },

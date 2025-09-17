@@ -1,5 +1,3 @@
-import Snoowrap from 'snoowrap'
-
 export interface RedditConfig {
   clientId: string
   clientSecret: string
@@ -21,47 +19,43 @@ export interface RedditItem {
 }
 
 export class RedditAPI {
-  private reddit: Snoowrap
+  private config: RedditConfig
 
   constructor(config: RedditConfig) {
-    this.reddit = new Snoowrap({
-      userAgent: config.userAgent,
-      clientId: config.clientId,
-      clientSecret: config.clientSecret,
-      username: config.username,
-      password: config.password,
-    })
+    this.config = config
   }
 
   /**
-   * Search for posts mentioning LifeX
+   * Search for posts mentioning LifeX using public API
    */
   async searchPosts(query: string, subreddit?: string, limit: number = 25): Promise<RedditItem[]> {
     try {
-      const searchOptions: any = {
-        query,
-        sort: 'new',
-        time: 'all',
-        limit,
+      const url = subreddit 
+        ? `https://www.reddit.com/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&sort=new&limit=${limit}&type=link`
+        : `https://www.reddit.com/search.json?q=${encodeURIComponent(query)}&sort=new&limit=${limit}&type=link`
+
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': this.config.userAgent
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`Reddit API error: ${response.status}`)
       }
 
-      let results
-      if (subreddit) {
-        results = await this.reddit.getSubreddit(subreddit).search(searchOptions)
-      } else {
-        results = await this.reddit.search(searchOptions)
-      }
-
-      return results.map((post: any) => ({
-        id: post.name, // Reddit fullname (e.g., "t3_abc123")
+      const data = await response.json()
+      
+      return data.data.children.map((post: any) => ({
+        id: `t3_${post.data.id}`,
         type: 'post' as const,
-        subreddit: post.subreddit.display_name,
-        permalink: post.permalink,
-        author: post.author?.name || null,
-        title: post.title,
-        body: post.selftext || '',
-        createdUtc: post.created_utc,
-        score: post.score,
+        subreddit: post.data.subreddit,
+        permalink: post.data.permalink,
+        author: post.data.author,
+        title: post.data.title,
+        body: post.data.selftext || '',
+        createdUtc: post.data.created_utc,
+        score: post.data.score,
       }))
     } catch (error) {
       console.error('Error searching posts:', error)
@@ -70,34 +64,35 @@ export class RedditAPI {
   }
 
   /**
-   * Search for comments mentioning LifeX
+   * Search for comments mentioning LifeX using public API
    */
   async searchComments(query: string, subreddit?: string, limit: number = 25): Promise<RedditItem[]> {
     try {
-      const searchOptions: any = {
-        query,
-        sort: 'new',
-        time: 'all',
-        limit,
-        type: 'comment',
+      const url = subreddit 
+        ? `https://www.reddit.com/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&sort=new&limit=${limit}&type=comment`
+        : `https://www.reddit.com/search.json?q=${encodeURIComponent(query)}&sort=new&limit=${limit}&type=comment`
+
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': this.config.userAgent
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`Reddit API error: ${response.status}`)
       }
 
-      let results
-      if (subreddit) {
-        results = await this.reddit.getSubreddit(subreddit).search(searchOptions)
-      } else {
-        results = await this.reddit.search(searchOptions)
-      }
-
-      return results.map((comment: any) => ({
-        id: comment.name, // Reddit fullname (e.g., "t1_abc123")
+      const data = await response.json()
+      
+      return data.data.children.map((comment: any) => ({
+        id: `t1_${comment.data.id}`,
         type: 'comment' as const,
-        subreddit: comment.subreddit.display_name,
-        permalink: comment.permalink,
-        author: comment.author?.name || null,
-        body: comment.body || '',
-        createdUtc: comment.created_utc,
-        score: comment.score,
+        subreddit: comment.data.subreddit,
+        permalink: comment.data.permalink,
+        author: comment.data.author,
+        body: comment.data.body || '',
+        createdUtc: comment.data.created_utc,
+        score: comment.data.score,
       }))
     } catch (error) {
       console.error('Error searching comments:', error)

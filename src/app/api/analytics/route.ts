@@ -1,7 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { NextResponse } from 'next/server'
+import { readFileSync, existsSync } from 'fs'
+import { join } from 'path'
 
 interface RedditMention {
   id: string
@@ -9,130 +8,115 @@ interface RedditMention {
   subreddit: string
   permalink: string
   author: string
-  text: string
-  createdUtc: number
+  title?: string
+  body?: string
+  createdUtc: string
   label: 'negative' | 'neutral' | 'positive'
   confidence: number
-  score_1_to_100: number
+  score: number
   ignored?: boolean
   urgent?: boolean
+  numComments?: number
+  manualLabel?: string
+  manualScore?: number
+  taggedBy?: string
+  taggedAt?: string
 }
 
-interface AnalyticsData {
-  date: string
-  negative: number
-  neutral: number
-  positive: number
-  total: number
+interface RedditData {
+  mentions: RedditMention[]
+  stats?: any
+  lastUpdated: string
 }
 
-interface SentimentStats {
-  total: number
-  negative: number
-  neutral: number
-  positive: number
-  negativePercentage: number
-  neutralPercentage: number
-  positivePercentage: number
+function readRedditData(): RedditData {
+  const dataFile = join(process.cwd(), 'data', 'reddit-data.json')
+  
+  if (!existsSync(dataFile)) {
+    return { mentions: [], lastUpdated: new Date().toISOString() }
+  }
+  
+  try {
+    return JSON.parse(readFileSync(dataFile, 'utf8'))
+  } catch (error) {
+    console.error('Error reading reddit data:', error)
+    return { mentions: [], lastUpdated: new Date().toISOString() }
+  }
 }
 
-// GET - Fetch analytics data
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const timeRange = searchParams.get('timeRange') || '30d'
+    
+    const redditData = readRedditData()
+    const mentions = redditData.mentions.filter(m => !m.ignored)
 
-    // Calculate date range
-    const now = new Date()
-    let startDate: Date
-
-    switch (timeRange) {
-      case '7d':
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-        break
-      case '30d':
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-        break
-      case '90d':
-        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
-        break
-      case 'all':
-      default:
-        startDate = new Date('2023-01-01') // Start from January 1, 2023
-        break
+    // Filter by time range
+    let filteredMentions = mentions
+    if (timeRange !== 'all') {
+      const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90
+      const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+      filteredMentions = mentions.filter(m => new Date(m.createdUtc) > cutoffDate)
     }
 
-    // Get mentions from database (excluding ignored)
-    const mentions = await prisma.mention.findMany({
-      where: {
-        ignored: false,
-        createdUtc: {
-          gte: startDate
-        }
-      },
-      orderBy: { createdUtc: 'asc' }
-    })
-
     // Group mentions by date
-    const groupedByDate: { [key: string]: any[] } = {}
-
-    mentions.forEach(mention => {
-      const date = new Date(mention.createdUtc)
-      const dateKey = date.toISOString().split('T')[0] // YYYY-MM-DD format
-
-      if (!groupedByDate[dateKey]) {
-        groupedByDate[dateKey] = []
+    const dailyData: Record<string, { negative: number; neutral: number; positive: number }> = {}
+    
+    filteredMentions.forEach(mention => {
+      const date = new Date(mention.createdUtc).toISOString().split('T')[0]
+      
+      if (!dailyData[date]) {
+        dailyData[date] = { negative: 0, neutral: 0, positive: 0 }
       }
-      groupedByDate[dateKey].push(mention)
+      
+      dailyData[date][mention.label]++
     })
 
-    // Create analytics data
-    const analyticsData: AnalyticsData[] = Object.entries(groupedByDate)
-      .map(([date, mentions]) => {
-        const negative = mentions.filter(m => m.label === 'negative').length
-        const neutral = mentions.filter(m => m.label === 'neutral').length
-        const positive = mentions.filter(m => m.label === 'positive').length
+    // Convert to array format for charts
+    const analyticsData = Object.entries(dailyData)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, counts]) => ({
+        date,
+        negative: counts.negative,
+        neutral: counts.neutral,
+        positive: counts.positive,
+        total: counts.negative + counts.neutral + counts.positive,
+      }))
 
-        return {
-          date,
-          negative,
-          neutral,
-          positive,
-          total: mentions.length
-        }
-      })
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    // Calculate sentiment stats
+    const totalMentions = filteredMentions.length
+    const sentimentCounts = filteredMentions.reduce((acc, mention) => {
+      acc[mention.label] = (acc[mention.label] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
 
-    // Calculate overall sentiment stats
-    const total = mentions.length
-    const negative = mentions.filter(m => m.label === 'negative').length
-    const neutral = mentions.filter(m => m.label === 'neutral').length
-    const positive = mentions.filter(m => m.label === 'positive').length
-
-    const sentimentStats: SentimentStats = {
-      total,
-      negative,
-      neutral,
-      positive,
-      negativePercentage: total > 0 ? (negative / total) * 100 : 0,
-      neutralPercentage: total > 0 ? (neutral / total) * 100 : 0,
-      positivePercentage: total > 0 ? (positive / total) * 100 : 0
+    const sentimentStats = {
+      total: totalMentions,
+      negative: sentimentCounts.negative || 0,
+      neutral: sentimentCounts.neutral || 0,
+      positive: sentimentCounts.positive || 0,
+      negativePercentage: totalMentions > 0 ? ((sentimentCounts.negative || 0) / totalMentions) * 100 : 0,
+      neutralPercentage: totalMentions > 0 ? ((sentimentCounts.neutral || 0) / totalMentions) * 100 : 0,
+      positivePercentage: totalMentions > 0 ? ((sentimentCounts.positive || 0) / totalMentions) * 100 : 0,
     }
 
     return NextResponse.json({
       success: true,
       data: {
         analyticsData,
-        sentimentStats
-      }
+        sentimentStats,
+        lastUpdated: redditData.lastUpdated,
+      },
     })
   } catch (error) {
-    console.error('Error fetching analytics data:', error)
+    console.error('Error fetching analytics:', error)
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch analytics data' },
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }

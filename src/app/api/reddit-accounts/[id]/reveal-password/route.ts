@@ -8,7 +8,7 @@ interface RedditAccount {
   id: string
   username: string
   email?: string
-  passwordHash: string
+  password: string
   createdAt: string
   updatedAt: string
   isActive: boolean
@@ -37,13 +37,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       )
     }
     
-    // Return a message indicating the password is encrypted and cannot be retrieved
-    // In a real application, you might want to implement a secure password recovery system
+    // Return the password (in a real application, you might want to implement encryption)
     return NextResponse.json({
       success: true,
       data: {
-        message: 'Password is encrypted and cannot be retrieved. You can set a new password by editing the account.',
-        canSetNewPassword: true
+        password: account.password
       }
     })
   } catch (error) {

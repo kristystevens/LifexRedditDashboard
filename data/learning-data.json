@@ -1,0 +1,330 @@
+{
+  "patterns": {
+    "positive": [],
+    "negative": [
+      "lifex",
+      "research",
+      "core",
+      "anthem",
+      "insurance",
+      "agent",
+      "trying",
+      "sell",
+      "plan",
+      "includes",
+      "scam",
+      "little",
+      "late",
+      "kind",
+      "question",
+      "basically",
+      "switching",
+      "jobs",
+      "need",
+      "phcs",
+      "anyone",
+      "experience",
+      "plans",
+      "looks",
+      "like",
+      "group",
+      "sued",
+      "elevance",
+      "health",
+      "blue",
+      "cross",
+      "shield",
+      "population",
+      "science",
+      "management",
+      "gigcare",
+      "iron",
+      "looking",
+      "possibly",
+      "york",
+      "help",
+      "student",
+      "market",
+      "place",
+      "auto",
+      "ever",
+      "actually",
+      "gotten",
+      "money",
+      "medical",
+      "expenses",
+      "everyone",
+      "found"
+    ],
+    "neutral": []
+  },
+  "corrections": [
+    {
+      "id": "t3_1jpop3e",
+      "originalLabel": "positive",
+      "correctedLabel": "negative",
+      "text": "LifeX research core/Anthem PPO An insurance agent is trying to sell me on a plan that includes joining the lifeX research corp as an employee to just fill out surveys… And the coverage for medical insurance is through anthem PPO. Coverage is around $500 a month with $1000 deductible, and it's only a $250 co-pay to give birth. It seems too good to be true… And I can't find any information online, does anyone have any experience with this company?",
+      "timestamp": "2025-09-16T20:04:23.570Z"
+    },
+    {
+      "id": "t3_1jefsek",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Scam? This is a little too late kind of question. \n\nBasically, I am switching jobs and will need to buy my own insurance. I’m planning on getting pregnant and in my state, I do not have any marketplace plans that will cover maternity related things. I went through an agent and was told me that I can get a private plan and it’d be a Cigna PPO network. Everything sounded decent until I got the paperwork for it and it kept talking about lifeX and kmg. I called him and he said that the plan is throu",
+      "timestamp": "2025-09-16T20:04:31.256Z"
+    },
+    {
+      "id": "t3_1ksbmxj",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "LifeX Anthem/PHCS PPO Has anyone had any experience with these plans? It looks like a group plan that covers way more benefits than what these other private plans are offering.",
+      "timestamp": "2025-09-16T20:04:37.878Z"
+    },
+    {
+      "id": "t3_1lrj8m4",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "LifeX is being sued by Elevance Health, Anthem Insurance and Blue Cross and Blue Shield Association The companies allege that LifeX \n\n&gt; As part of a scheme to\ninduce consumers to purchase health insurance through an alleged employee\nbenefit plan, LifeX has willfully and improperly used AIC’s ANTHEM mark and\nBCBSA’s BLUECARD®, BLUE CROSS® and BLUE SHIELD® word marks\nand logos (the “BCBS Marks”) in blatant violation of Plaintiffs’ trademark rights.\nCase 1:25-cv-03590-WMR Document 1 Filed 06/27/",
+      "timestamp": "2025-09-16T20:04:42.098Z"
+    },
+    {
+      "id": "t3_1m2ta2k",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Population Science Management, GIGCare, Iron Health and Lifex plans I have been looking into possibly selling the GIGCare and Lifex Plans as well as other plans from Iron Health. My issue is that these plans do not seem to be covered under most E&amp;O policies. Has anyone else researched what type of E&amp;O coverage actually works with these plans?\n\nI have only been able to find a couple of carriers that allow ERISA self funded group plans but each of these specifically state that if the group",
+      "timestamp": "2025-09-16T20:04:44.541Z"
+    },
+    {
+      "id": "t3_1msc49d",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "New York health insurance help I was a student, and was out in NYS Health Insurance through the market place. It auto renewed for 5 years. I am no longer eligible, and not even for a tax credit. I may need to pay between $600-$800 a month for the most simple / terrible (I hear) insurance, Healthfirst. \n\nHas anybody else had a situation like this? If so, how did you handle it? Luckily I am considered a small business and I can write off my healthcare premiums. But still $700 a month is a burden. ",
+      "timestamp": "2025-09-16T20:04:48.460Z"
+    },
+    {
+      "id": "t3_1nf455f",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Has anyone ever actually gotten money for medical expenses from Lifex? Hi Everyone,\n\nI found an insurance broker who had great reviews and had a few mutual friends with me on Facebook. Let’s call her “Sara.” (Not her real name.) I wanted Sara to help me enroll in new health insurance when I moved states. This should have been an easy marketplace enrollment on [healthcare.gov](http://healthcare.gov)—I could have done it on my own but figured an expert could help me get a better deal and a more ap",
+      "timestamp": "2025-09-16T20:04:51.470Z"
+    },
+    {
+      "id": "t3_1jefsek",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Scam? This is a little too late kind of question. \n\nBasically, I am switching jobs and will need to buy my own insurance. I’m planning on getting pregnant and in my state, I do not have any marketplace plans that will cover maternity related things. I went through an agent and was told me that I can get a private plan and it’d be a Cigna PPO network. Everything sounded decent until I got the paperwork for it and it kept talking about lifeX and kmg. I called him and he said that the plan is throu",
+      "timestamp": "2025-09-16T20:15:38.643Z"
+    },
+    {
+      "id": "t3_1jpop3e",
+      "originalLabel": "positive",
+      "correctedLabel": "negative",
+      "text": "LifeX research core/Anthem PPO An insurance agent is trying to sell me on a plan that includes joining the lifeX research corp as an employee to just fill out surveys… And the coverage for medical insurance is through anthem PPO. Coverage is around $500 a month with $1000 deductible, and it's only a $250 co-pay to give birth. It seems too good to be true… And I can't find any information online, does anyone have any experience with this company?",
+      "timestamp": "2025-09-16T20:16:03.286Z"
+    },
+    {
+      "id": "t3_1ksbmxj",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "LifeX Anthem/PHCS PPO Has anyone had any experience with these plans? It looks like a group plan that covers way more benefits than what these other private plans are offering.",
+      "timestamp": "2025-09-16T20:16:08.113Z"
+    },
+    {
+      "id": "t3_1lrj8m4",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "LifeX is being sued by Elevance Health, Anthem Insurance and Blue Cross and Blue Shield Association The companies allege that LifeX \n\n&gt; As part of a scheme to\ninduce consumers to purchase health insurance through an alleged employee\nbenefit plan, LifeX has willfully and improperly used AIC’s ANTHEM mark and\nBCBSA’s BLUECARD®, BLUE CROSS® and BLUE SHIELD® word marks\nand logos (the “BCBS Marks”) in blatant violation of Plaintiffs’ trademark rights.\nCase 1:25-cv-03590-WMR Document 1 Filed 06/27/",
+      "timestamp": "2025-09-16T20:16:15.723Z"
+    },
+    {
+      "id": "t3_1m2ta2k",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Population Science Management, GIGCare, Iron Health and Lifex plans I have been looking into possibly selling the GIGCare and Lifex Plans as well as other plans from Iron Health. My issue is that these plans do not seem to be covered under most E&amp;O policies. Has anyone else researched what type of E&amp;O coverage actually works with these plans?\n\nI have only been able to find a couple of carriers that allow ERISA self funded group plans but each of these specifically state that if the group",
+      "timestamp": "2025-09-16T20:16:19.709Z"
+    },
+    {
+      "id": "t3_1msc49d",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "New York health insurance help I was a student, and was out in NYS Health Insurance through the market place. It auto renewed for 5 years. I am no longer eligible, and not even for a tax credit. I may need to pay between $600-$800 a month for the most simple / terrible (I hear) insurance, Healthfirst. \n\nHas anybody else had a situation like this? If so, how did you handle it? Luckily I am considered a small business and I can write off my healthcare premiums. But still $700 a month is a burden. ",
+      "timestamp": "2025-09-16T20:16:22.926Z"
+    },
+    {
+      "id": "t3_1nf455f",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Has anyone ever actually gotten money for medical expenses from Lifex? Hi Everyone,\n\nI found an insurance broker who had great reviews and had a few mutual friends with me on Facebook. Let’s call her “Sara.” (Not her real name.) I wanted Sara to help me enroll in new health insurance when I moved states. This should have been an easy marketplace enrollment on [healthcare.gov](http://healthcare.gov)—I could have done it on my own but figured an expert could help me get a better deal and a more ap",
+      "timestamp": "2025-09-16T20:16:26.645Z"
+    },
+    {
+      "id": "t3_1nf455f",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Has anyone ever actually gotten money for medical expenses from Lifex? Hi Everyone,\n\nI found an insurance broker who had great reviews and had a few mutual friends with me on Facebook. Let’s call her “Sara.” (Not her real name.) I wanted Sara to help me enroll in new health insurance when I moved states. This should have been an easy marketplace enrollment on [healthcare.gov](http://healthcare.gov)—I could have done it on my own but figured an expert could help me get a better deal and a more ap",
+      "timestamp": "2025-09-16T20:37:01.332Z"
+    },
+    {
+      "id": "t3_1msc49d",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "New York health insurance help I was a student, and was out in NYS Health Insurance through the market place. It auto renewed for 5 years. I am no longer eligible, and not even for a tax credit. I may need to pay between $600-$800 a month for the most simple / terrible (I hear) insurance, Healthfirst. \n\nHas anybody else had a situation like this? If so, how did you handle it? Luckily I am considered a small business and I can write off my healthcare premiums. But still $700 a month is a burden. ",
+      "timestamp": "2025-09-16T20:37:04.559Z"
+    },
+    {
+      "id": "t3_1m2ta2k",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Population Science Management, GIGCare, Iron Health and Lifex plans I have been looking into possibly selling the GIGCare and Lifex Plans as well as other plans from Iron Health. My issue is that these plans do not seem to be covered under most E&amp;O policies. Has anyone else researched what type of E&amp;O coverage actually works with these plans?\n\nI have only been able to find a couple of carriers that allow ERISA self funded group plans but each of these specifically state that if the group",
+      "timestamp": "2025-09-16T20:37:08.748Z"
+    },
+    {
+      "id": "t3_1lrj8m4",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "LifeX is being sued by Elevance Health, Anthem Insurance and Blue Cross and Blue Shield Association The companies allege that LifeX \n\n&gt; As part of a scheme to\ninduce consumers to purchase health insurance through an alleged employee\nbenefit plan, LifeX has willfully and improperly used AIC’s ANTHEM mark and\nBCBSA’s BLUECARD®, BLUE CROSS® and BLUE SHIELD® word marks\nand logos (the “BCBS Marks”) in blatant violation of Plaintiffs’ trademark rights.\nCase 1:25-cv-03590-WMR Document 1 Filed 06/27/",
+      "timestamp": "2025-09-16T20:37:13.416Z"
+    },
+    {
+      "id": "t3_1jpop3e",
+      "originalLabel": "positive",
+      "correctedLabel": "negative",
+      "text": "LifeX research core/Anthem PPO An insurance agent is trying to sell me on a plan that includes joining the lifeX research corp as an employee to just fill out surveys… And the coverage for medical insurance is through anthem PPO. Coverage is around $500 a month with $1000 deductible, and it's only a $250 co-pay to give birth. It seems too good to be true… And I can't find any information online, does anyone have any experience with this company?",
+      "timestamp": "2025-09-16T20:37:18.066Z"
+    },
+    {
+      "id": "t3_1ksbmxj",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "LifeX Anthem/PHCS PPO Has anyone had any experience with these plans? It looks like a group plan that covers way more benefits than what these other private plans are offering.",
+      "timestamp": "2025-09-16T20:37:21.721Z"
+    },
+    {
+      "id": "t3_1jefsek",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Scam? This is a little too late kind of question. \n\nBasically, I am switching jobs and will need to buy my own insurance. I’m planning on getting pregnant and in my state, I do not have any marketplace plans that will cover maternity related things. I went through an agent and was told me that I can get a private plan and it’d be a Cigna PPO network. Everything sounded decent until I got the paperwork for it and it kept talking about lifeX and kmg. I called him and he said that the plan is throu",
+      "timestamp": "2025-09-16T20:37:25.087Z"
+    },
+    {
+      "id": "t3_1jefsek",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Scam? This is a little too late kind of question. \n\nBasically, I am switching jobs and will need to buy my own insurance. I’m planning on getting pregnant and in my state, I do not have any marketplace plans that will cover maternity related things. I went through an agent and was told me that I can get a private plan and it’d be a Cigna PPO network. Everything sounded decent until I got the paperwork for it and it kept talking about lifeX and kmg. I called him and he said that the plan is throu",
+      "timestamp": "2025-09-16T20:40:21.358Z"
+    },
+    {
+      "id": "t3_1jpop3e",
+      "originalLabel": "positive",
+      "correctedLabel": "negative",
+      "text": "LifeX research core/Anthem PPO An insurance agent is trying to sell me on a plan that includes joining the lifeX research corp as an employee to just fill out surveys… And the coverage for medical insurance is through anthem PPO. Coverage is around $500 a month with $1000 deductible, and it's only a $250 co-pay to give birth. It seems too good to be true… And I can't find any information online, does anyone have any experience with this company?",
+      "timestamp": "2025-09-16T20:40:24.589Z"
+    },
+    {
+      "id": "t3_1ksbmxj",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "LifeX Anthem/PHCS PPO Has anyone had any experience with these plans? It looks like a group plan that covers way more benefits than what these other private plans are offering.",
+      "timestamp": "2025-09-16T20:40:27.799Z"
+    },
+    {
+      "id": "t3_1lrj8m4",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "LifeX is being sued by Elevance Health, Anthem Insurance and Blue Cross and Blue Shield Association The companies allege that LifeX \n\n&gt; As part of a scheme to\ninduce consumers to purchase health insurance through an alleged employee\nbenefit plan, LifeX has willfully and improperly used AIC’s ANTHEM mark and\nBCBSA’s BLUECARD®, BLUE CROSS® and BLUE SHIELD® word marks\nand logos (the “BCBS Marks”) in blatant violation of Plaintiffs’ trademark rights.\nCase 1:25-cv-03590-WMR Document 1 Filed 06/27/",
+      "timestamp": "2025-09-16T20:40:34.165Z"
+    },
+    {
+      "id": "t3_1m2ta2k",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Population Science Management, GIGCare, Iron Health and Lifex plans I have been looking into possibly selling the GIGCare and Lifex Plans as well as other plans from Iron Health. My issue is that these plans do not seem to be covered under most E&amp;O policies. Has anyone else researched what type of E&amp;O coverage actually works with these plans?\n\nI have only been able to find a couple of carriers that allow ERISA self funded group plans but each of these specifically state that if the group",
+      "timestamp": "2025-09-16T20:40:37.432Z"
+    },
+    {
+      "id": "t3_1msc49d",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "New York health insurance help I was a student, and was out in NYS Health Insurance through the market place. It auto renewed for 5 years. I am no longer eligible, and not even for a tax credit. I may need to pay between $600-$800 a month for the most simple / terrible (I hear) insurance, Healthfirst. \n\nHas anybody else had a situation like this? If so, how did you handle it? Luckily I am considered a small business and I can write off my healthcare premiums. But still $700 a month is a burden. ",
+      "timestamp": "2025-09-16T20:40:40.476Z"
+    },
+    {
+      "id": "t3_1nf455f",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Has anyone ever actually gotten money for medical expenses from Lifex? Hi Everyone,\n\nI found an insurance broker who had great reviews and had a few mutual friends with me on Facebook. Let’s call her “Sara.” (Not her real name.) I wanted Sara to help me enroll in new health insurance when I moved states. This should have been an easy marketplace enrollment on [healthcare.gov](http://healthcare.gov)—I could have done it on my own but figured an expert could help me get a better deal and a more ap",
+      "timestamp": "2025-09-16T20:40:43.267Z"
+    },
+    {
+      "id": "t3_1nf455f",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Has anyone ever actually gotten money for medical expenses from Lifex? Hi Everyone,\n\nI found an insurance broker who had great reviews and had a few mutual friends with me on Facebook. Let’s call her “Sara.” (Not her real name.) I wanted Sara to help me enroll in new health insurance when I moved states. This should have been an easy marketplace enrollment on [healthcare.gov](http://healthcare.gov)—I could have done it on my own but figured an expert could help me get a better deal and a more ap",
+      "timestamp": "2025-09-17T13:53:34.305Z"
+    },
+    {
+      "id": "t3_1jefsek",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Scam? This is a little too late kind of question. \n\nBasically, I am switching jobs and will need to buy my own insurance. I’m planning on getting pregnant and in my state, I do not have any marketplace plans that will cover maternity related things. I went through an agent and was told me that I can get a private plan and it’d be a Cigna PPO network. Everything sounded decent until I got the paperwork for it and it kept talking about lifeX and kmg. I called him and he said that the plan is throu",
+      "timestamp": "2025-09-17T13:54:52.428Z"
+    },
+    {
+      "id": "t3_1jpop3e",
+      "originalLabel": "positive",
+      "correctedLabel": "negative",
+      "text": "LifeX research core/Anthem PPO An insurance agent is trying to sell me on a plan that includes joining the lifeX research corp as an employee to just fill out surveys… And the coverage for medical insurance is through anthem PPO. Coverage is around $500 a month with $1000 deductible, and it's only a $250 co-pay to give birth. It seems too good to be true… And I can't find any information online, does anyone have any experience with this company?",
+      "timestamp": "2025-09-17T13:54:55.477Z"
+    },
+    {
+      "id": "t3_1ksbmxj",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "LifeX Anthem/PHCS PPO Has anyone had any experience with these plans? It looks like a group plan that covers way more benefits than what these other private plans are offering.",
+      "timestamp": "2025-09-17T13:54:58.669Z"
+    },
+    {
+      "id": "t3_1lrj8m4",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "LifeX is being sued by Elevance Health, Anthem Insurance and Blue Cross and Blue Shield Association The companies allege that LifeX \n\n&gt; As part of a scheme to\ninduce consumers to purchase health insurance through an alleged employee\nbenefit plan, LifeX has willfully and improperly used AIC’s ANTHEM mark and\nBCBSA’s BLUECARD®, BLUE CROSS® and BLUE SHIELD® word marks\nand logos (the “BCBS Marks”) in blatant violation of Plaintiffs’ trademark rights.\nCase 1:25-cv-03590-WMR Document 1 Filed 06/27/",
+      "timestamp": "2025-09-17T13:55:03.428Z"
+    },
+    {
+      "id": "t3_1m2ta2k",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Population Science Management, GIGCare, Iron Health and Lifex plans I have been looking into possibly selling the GIGCare and Lifex Plans as well as other plans from Iron Health. My issue is that these plans do not seem to be covered under most E&amp;O policies. Has anyone else researched what type of E&amp;O coverage actually works with these plans?\n\nI have only been able to find a couple of carriers that allow ERISA self funded group plans but each of these specifically state that if the group",
+      "timestamp": "2025-09-17T13:55:07.628Z"
+    },
+    {
+      "id": "t3_1msc49d",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "New York health insurance help I was a student, and was out in NYS Health Insurance through the market place. It auto renewed for 5 years. I am no longer eligible, and not even for a tax credit. I may need to pay between $600-$800 a month for the most simple / terrible (I hear) insurance, Healthfirst. \n\nHas anybody else had a situation like this? If so, how did you handle it? Luckily I am considered a small business and I can write off my healthcare premiums. But still $700 a month is a burden. ",
+      "timestamp": "2025-09-17T13:55:10.662Z"
+    },
+    {
+      "id": "t3_1lrj8m4",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "LifeX is being sued by Elevance Health, Anthem Insurance and Blue Cross and Blue Shield Association The companies allege that LifeX \n\n&gt; As part of a scheme to\ninduce consumers to purchase health insurance through an alleged employee\nbenefit plan, LifeX has willfully and improperly used AIC’s ANTHEM mark and\nBCBSA’s BLUECARD®, BLUE CROSS® and BLUE SHIELD® word marks\nand logos (the “BCBS Marks”) in blatant violation of Plaintiffs’ trademark rights.\nCase 1:25-cv-03590-WMR Document 1 Filed 06/27/",
+      "timestamp": "2025-09-17T13:55:14.176Z"
+    },
+    {
+      "id": "t3_1nf455f",
+      "originalLabel": "neutral",
+      "correctedLabel": "negative",
+      "text": "Has anyone ever actually gotten money for medical expenses from Lifex? Hi Everyone,\n\nI found an insurance broker who had great reviews and had a few mutual friends with me on Facebook. Let’s call her “Sara.” (Not her real name.) I wanted Sara to help me enroll in new health insurance when I moved states. This should have been an easy marketplace enrollment on [healthcare.gov](http://healthcare.gov)—I could have done it on my own but figured an expert could help me get a better deal and a more ap",
+      "timestamp": "2025-09-17T13:55:17.886Z"
+    },
+    {
+      "id": "t3_1jpop3e",
+      "originalLabel": "positive",
+      "correctedLabel": "negative",
+      "text": "LifeX research core/Anthem PPO An insurance agent is trying to sell me on a plan that includes joining the lifeX research corp as an employee to just fill out surveys… And the coverage for medical insurance is through anthem PPO. Coverage is around $500 a month with $1000 deductible, and it's only a $250 co-pay to give birth. It seems too good to be true… And I can't find any information online, does anyone have any experience with this company?",
+      "timestamp": "2025-09-17T13:55:24.405Z"
+    }
+  ],
+  "lastUpdated": "2025-09-17T13:55:24.405Z"
+}

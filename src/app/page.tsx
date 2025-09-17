@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { TrendingUp, TrendingDown, Minus, ExternalLink, RefreshCw, BarChart3, Users } from 'lucide-react'
+import MentionTagger from '@/components/MentionTagger'
+import MentionFilters from '@/components/MentionFilters'
+import RedditAccountsPage from '@/components/RedditAccountsPage'
+import AnalyticsPage from '@/components/AnalyticsPage'
+import RecentLifexMentions from '@/components/RecentLifexMentions'
+import CommentsDropdown from '@/components/CommentsDropdown'
 
 interface Stats {
   total: number
@@ -58,28 +64,31 @@ export default function Home() {
   const fetchData = async () => {
     try {
       setError(null)
-      // Load data from local JSON file
-      const response = await fetch('/data/mentions.json')
-      if (!response.ok) {
-        throw new Error(`Failed to load data: ${response.status}`)
+      const [statsRes, mentionsRes] = await Promise.all([
+        fetch('/api/stats'),
+        fetch('/api/mentions?limit=1000&showIgnored=true') // Include ignored mentions with higher limit
+      ])
+
+      if (statsRes.ok) {
+        const statsData = await statsRes.json()
+        setStats(statsData.data)
       }
-      
-      const data: DataResponse = await response.json()
-      
-      setStats(data.stats)
-      setAllMentions(data.mentions)
-      
-      // Initially show only non-ignored mentions
-      const nonIgnoredMentions = data.mentions.filter((m: Mention) => !m.ignored)
-      setMentions(nonIgnoredMentions)
-      setLastUpdated(new Date(data.stats.lastUpdated))
-      
-    } catch (err) {
-      console.error('Error fetching data:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load data')
+
+      if (mentionsRes.ok) {
+        const mentionsData = await mentionsRes.json()
+        setAllMentions(mentionsData.data.mentions)
+        // Initially show only non-ignored mentions, but keep all in allMentions
+        const nonIgnoredMentions = mentionsData.data.mentions.filter((m: Mention) => !m.ignored)
+        setMentions(nonIgnoredMentions)
+        setLastUpdated(new Date(mentionsData.data.lastUpdated))
+      }
+
+    } catch (error) {
+      console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
       setRefreshing(false)
+      setLastUpdated(new Date())
     }
   }
 
@@ -159,6 +168,38 @@ export default function Home() {
     const filtered = applyFilters(allMentions, newFilters)
     setFilteredMentions(filtered)
     setMentions(filtered)
+  }
+
+
+  const handleTagUpdate = (mentionId: string, newLabel: string, newScore: number) => {
+    setAllMentions(prev => prev.map(m => 
+      m.id === mentionId 
+        ? { ...m, label: newLabel, score: newScore, manualLabel: newLabel, manualScore: newScore }
+        : m
+    ))
+    setMentions(prev => prev.map(m => 
+      m.id === mentionId 
+        ? { ...m, label: newLabel, score: newScore, manualLabel: newLabel, manualScore: newScore }
+        : m
+    ))
+  }
+
+  const handleIgnoreToggle = (mentionId: string, isIgnored: boolean) => {
+    setAllMentions(prev => prev.map(m => 
+      m.id === mentionId ? { ...m, ignored: isIgnored } : m
+    ))
+    setMentions(prev => prev.map(m => 
+      m.id === mentionId ? { ...m, ignored: isIgnored } : m
+    ))
+  }
+
+  const handleUrgentToggle = (mentionId: string, isUrgent: boolean) => {
+    setAllMentions(prev => prev.map(m => 
+      m.id === mentionId ? { ...m, urgent: isUrgent } : m
+    ))
+    setMentions(prev => prev.map(m => 
+      m.id === mentionId ? { ...m, urgent: isUrgent } : m
+    ))
   }
 
   // Get unique subreddits for filter dropdown
@@ -386,62 +427,19 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Filters */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Subreddit</label>
-                    <select
-                      value={filters.subreddit}
-                      onChange={(e) => handleFiltersChange({...filters, subreddit: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">All Subreddits</option>
-                      {availableSubreddits.map(sub => (
-                        <option key={sub} value={sub}>r/{sub}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Sentiment</label>
-                    <select
-                      value={filters.sentiment}
-                      onChange={(e) => handleFiltersChange({...filters, sentiment: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">All Sentiments</option>
-                      <option value="positive">Positive</option>
-                      <option value="negative">Negative</option>
-                      <option value="neutral">Neutral</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
-                    <select
-                      value={filters.sortBy}
-                      onChange={(e) => handleFiltersChange({...filters, sortBy: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="newest">Newest First</option>
-                      <option value="oldest">Oldest First</option>
-                      <option value="score-high">Highest Score</option>
-                      <option value="score-low">Lowest Score</option>
-                    </select>
-                  </div>
-                  <div className="flex items-end">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={filters.showIgnored}
-                        onChange={(e) => handleFiltersChange({...filters, showIgnored: e.target.checked})}
-                        className="mr-2"
-                      />
-                      <span className="text-sm text-gray-700">Show Ignored</span>
-                    </label>
-                  </div>
-                </div>
+
+              {/* Recent Lifex Mentions Section */}
+              <div className="mb-8">
+                <RecentLifexMentions />
               </div>
+
+              {/* Advanced Filters */}
+              <MentionFilters
+                onFiltersChange={handleFiltersChange}
+                availableSubreddits={availableSubreddits}
+                totalMentions={allMentions.length}
+                activeMentions={mentions.length}
+              />
 
               {/* Mentions Table */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -450,7 +448,10 @@ export default function Home() {
                     <div>
                       <h2 className="text-lg font-semibold text-gray-900">All LifeX Mentions</h2>
                       <p className="text-sm text-gray-500 mt-1">
-                        Showing {mentions.length} mentions
+                        {filters.showIgnored 
+                          ? `Showing ${mentions.length} mentions (including ${mentions.filter(m => m.ignored).length} ignored)`
+                          : `Showing ${mentions.length} active mentions (${allMentions.filter(m => m.ignored).length} ignored)`
+                        }
                         <span className="ml-2 text-xs text-yellow-600">
                           • "LifeX" and "LifeX Research" mentions are highlighted
                         </span>
@@ -511,7 +512,7 @@ export default function Home() {
                             </span>
                           </div>
                           <a
-                            href={mention.permalink}
+                            href={mention.permalink.startsWith('http') ? mention.permalink : `https://reddit.com${mention.permalink}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="block hover:bg-gray-50 p-2 -m-2 rounded"
@@ -533,11 +534,14 @@ export default function Home() {
                           </a>
                           <div className={`flex items-center gap-4 text-sm ${mention.ignored ? 'text-gray-400' : 'text-gray-500'}`}>
                             <span>Score: {mention.score}</span>
-                            <span>Comments: {mention.numComments || 0}</span>
+                            <CommentsDropdown
+                              permalink={mention.permalink}
+                              numComments={mention.numComments || 0}
+                            />
                             <span className="capitalize">{mention.type}</span>
                             <span>Confidence: {Math.round(mention.confidence * 100)}%</span>
                             <a
-                              href={mention.permalink}
+                              href={mention.permalink.startsWith('http') ? mention.permalink : `https://reddit.com${mention.permalink}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 hover:text-blue-800 font-medium"
@@ -546,15 +550,28 @@ export default function Home() {
                             </a>
                           </div>
                         </div>
-                        <a
-                          href={mention.permalink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="ml-4 p-2 text-gray-400 hover:text-gray-600"
-                          title="Open in Reddit"
-                        >
-                          <ExternalLink className="w-5 h-5" />
-                        </a>
+                        <div className="flex items-center gap-2">
+                          <MentionTagger
+                            mentionId={mention.id}
+                            currentLabel={mention.label}
+                            currentScore={mention.score}
+                            isManuallyTagged={!!(mention as any).manualLabel}
+                            isIgnored={mention.ignored}
+                            isUrgent={mention.urgent}
+                            onTagUpdate={(newLabel, newScore) => handleTagUpdate(mention.id, newLabel, newScore)}
+                            onIgnoreToggle={(isIgnored) => handleIgnoreToggle(mention.id, isIgnored)}
+                            onUrgentToggle={(isUrgent) => handleUrgentToggle(mention.id, isUrgent)}
+                          />
+                          <a
+                            href={mention.permalink.startsWith('http') ? mention.permalink : `https://reddit.com${mention.permalink}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 text-gray-400 hover:text-gray-600"
+                            title="Open in Reddit"
+                          >
+                            <ExternalLink className="w-5 h-5" />
+                          </a>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -564,19 +581,11 @@ export default function Home() {
           )}
 
           {activeTab === 'accounts' && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-              <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Reddit Accounts</h2>
-              <p className="text-gray-600">Reddit account management coming soon...</p>
-            </div>
+            <RedditAccountsPage />
           )}
 
           {activeTab === 'analytics' && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-              <TrendingUp className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Analytics</h2>
-              <p className="text-gray-600">Advanced analytics coming soon...</p>
-            </div>
+            <AnalyticsPage />
           )}
         </div>
       </main>

@@ -55,3 +55,5 @@ echo "  View logs: docker-compose logs -f"
 echo "  Stop app: docker-compose down"
 echo "  Restart app: docker-compose restart"
 echo "  Update app: docker-compose pull && docker-compose up -d"
+
+

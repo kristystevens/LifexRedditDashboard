@@ -1,135 +1,117 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { readFileSync, existsSync, writeFileSync } from 'fs'
+import { join } from 'path'
 
-const prisma = new PrismaClient()
-
-// Helper function to map sentiment to score
-function mapSentimentToScore(label: string, confidence: number = 1.0): number {
-  const base = label === 'negative' ? 10 : label === 'neutral' ? 50 : 90
-  const adjustment = confidence * 10 * (label === 'negative' ? -1 : label === 'positive' ? 1 : 0)
-  return Math.max(1, Math.min(100, Math.round(base + adjustment)))
+interface RedditMention {
+  id: string
+  type: 'post' | 'comment'
+  subreddit: string
+  permalink: string
+  author: string
+  title?: string
+  body?: string
+  createdUtc: string
+  label: 'negative' | 'neutral' | 'positive'
+  confidence: number
+  score: number
+  ignored?: boolean
+  urgent?: boolean
+  numComments?: number
+  manualLabel?: string
+  manualScore?: number
+  taggedBy?: string
+  taggedAt?: string
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+interface RedditData {
+  mentions: RedditMention[]
+  stats?: any
+  lastUpdated: string
+}
+
+function readRedditData(): RedditData {
+  const dataFile = join(process.cwd(), 'data', 'reddit-data.json')
+  
+  if (!existsSync(dataFile)) {
+    return { mentions: [], lastUpdated: new Date().toISOString() }
+  }
+  
   try {
-    const { id } = params
-    const body = await request.json()
-    const { label, taggedBy = 'user' } = body
-
-    // Validate label
-    if (!['positive', 'neutral', 'negative'].includes(label)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid label. Must be positive, neutral, or negative' },
-        { status: 400 }
-      )
-    }
-
-    // Find the mention
-    const mention = await prisma.mention.findUnique({
-      where: { id }
-    })
-
-    if (!mention) {
-      return NextResponse.json(
-        { success: false, error: 'Mention not found' },
-        { status: 404 }
-      )
-    }
-
-    const originalLabel = mention.label
-    const originalScore = mention.score
-
-    // Calculate new score based on manual label
-    const newScore = mapSentimentToScore(label, 1.0) // Use max confidence for manual tags
-
-    // Update the mention in database
-    const updatedMention = await prisma.mention.update({
-      where: { id },
-      data: {
-        label: label,
-        score: newScore,
-        manualLabel: label,
-        manualScore: newScore,
-        taggedBy,
-        taggedAt: new Date(),
-      }
-    })
-
-    return NextResponse.json({
-      success: true,
-      message: 'Mention tagged successfully',
-      data: {
-        id: updatedMention.id,
-        originalLabel,
-        manualLabel: label,
-        originalScore,
-        manualScore: newScore,
-        taggedBy,
-        taggedAt: updatedMention.taggedAt,
-      },
-    })
+    return JSON.parse(readFileSync(dataFile, 'utf8'))
   } catch (error) {
-    console.error('Error tagging mention:', error)
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    )
-  } finally {
-    await prisma.$disconnect()
+    console.error('Error reading reddit data:', error)
+    return { mentions: [], lastUpdated: new Date().toISOString() }
   }
 }
 
-export async function DELETE(
+function writeRedditData(data: RedditData): void {
+  const dataFile = join(process.cwd(), 'data', 'reddit-data.json')
+  writeFileSync(dataFile, JSON.stringify(data, null, 2))
+}
+
+// POST - Create a new manual tag
+export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
+    const { label, taggedBy } = await request.json()
 
-    // Find the mention
-    const mention = await prisma.mention.findUnique({
-      where: { id }
-    })
+    const redditData = readRedditData()
+    const mentionIndex = redditData.mentions.findIndex(m => m.id === id)
 
-    if (!mention) {
+    if (mentionIndex === -1) {
       return NextResponse.json(
         { success: false, error: 'Mention not found' },
         { status: 404 }
       )
     }
 
-    // Remove manual override (revert to original AI classification)
-    // For now, we'll keep the current label/score since we don't store original values
-    // In a real implementation, you'd want to store original AI classifications
-    const updatedMention = await prisma.mention.update({
-      where: { id },
-      data: {
-        manualLabel: null,
-        manualScore: null,
-        taggedBy: null,
-        taggedAt: null,
+    const mention = redditData.mentions[mentionIndex]
+    const originalLabel = mention.label
+
+    // Calculate manual score based on label
+    const manualScore = label === 'positive' ? 0.8 : label === 'negative' ? -0.8 : 0.0
+
+    // Update the mention
+    redditData.mentions[mentionIndex].manualLabel = label
+    redditData.mentions[mentionIndex].manualScore = manualScore
+    redditData.mentions[mentionIndex].taggedBy = taggedBy
+    redditData.mentions[mentionIndex].taggedAt = new Date().toISOString()
+    redditData.lastUpdated = new Date().toISOString()
+
+    // Save updated data
+    writeRedditData(redditData)
+
+    // Record learning data if this is a manual correction
+    if (taggedBy === 'user' && originalLabel !== label) {
+      try {
+        const text = `${mention.title || ''} ${mention.body || ''}`.trim()
+        await fetch(`${request.nextUrl.origin}/api/mentions/${id}/learn`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            originalLabel,
+            correctedLabel: label,
+            text
+          })
+        })
+      } catch (error) {
+        console.error('Error recording learning data:', error)
+        // Don't fail the main request if learning fails
       }
-    })
+    }
 
     return NextResponse.json({
       success: true,
-      message: 'Manual tag removed successfully',
       data: {
-        id: updatedMention.id,
-        label: updatedMention.label,
-        score: updatedMention.score,
+        ...redditData.mentions[mentionIndex],
+        manualScore
       },
     })
   } catch (error) {
-    console.error('Error removing manual tag:', error)
-
+    console.error('Error creating mention tag:', error)
     return NextResponse.json(
       {
         success: false,
@@ -137,7 +119,124 @@ export async function DELETE(
       },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const { label, score, taggedBy } = await request.json()
+
+    const redditData = readRedditData()
+    const mentionIndex = redditData.mentions.findIndex(m => m.id === id)
+
+    if (mentionIndex === -1) {
+      return NextResponse.json(
+        { success: false, error: 'Mention not found' },
+        { status: 404 }
+      )
+    }
+
+    const mention = redditData.mentions[mentionIndex]
+    const originalLabel = mention.label
+
+    // Update the mention
+    redditData.mentions[mentionIndex].manualLabel = label
+    redditData.mentions[mentionIndex].manualScore = score
+    redditData.mentions[mentionIndex].taggedBy = taggedBy
+    redditData.mentions[mentionIndex].taggedAt = new Date().toISOString()
+    redditData.lastUpdated = new Date().toISOString()
+
+    // Save updated data
+    writeRedditData(redditData)
+
+    // Record learning data if this is a manual correction
+    if (taggedBy === 'user' && originalLabel !== label) {
+      try {
+        const text = `${mention.title || ''} ${mention.body || ''}`.trim()
+        await fetch(`${request.nextUrl.origin}/api/mentions/${id}/learn`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            originalLabel,
+            correctedLabel: label,
+            text
+          })
+        })
+      } catch (error) {
+        console.error('Error recording learning data:', error)
+        // Don't fail the main request if learning fails
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: redditData.mentions[mentionIndex],
+    })
+  } catch (error) {
+    console.error('Error updating mention tag:', error)
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    )
+  }
+}
+
+// DELETE - Remove manual tag and reset to AI classification
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+
+    const redditData = readRedditData()
+    const mentionIndex = redditData.mentions.findIndex(m => m.id === id)
+
+    if (mentionIndex === -1) {
+      return NextResponse.json(
+        { success: false, error: 'Mention not found' },
+        { status: 404 }
+      )
+    }
+
+    const mention = redditData.mentions[mentionIndex]
+
+    // Remove manual tag data
+    delete redditData.mentions[mentionIndex].manualLabel
+    delete redditData.mentions[mentionIndex].manualScore
+    delete redditData.mentions[mentionIndex].taggedBy
+    delete redditData.mentions[mentionIndex].taggedAt
+    redditData.lastUpdated = new Date().toISOString()
+
+    // Save updated data
+    writeRedditData(redditData)
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        label: mention.label,
+        score: mention.score,
+        manualLabel: undefined,
+        manualScore: undefined,
+        taggedBy: undefined,
+        taggedAt: undefined
+      },
+    })
+  } catch (error) {
+    console.error('Error removing mention tag:', error)
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    )
   }
 }

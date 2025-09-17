@@ -8,7 +8,8 @@ const ACCOUNTS_FILE = join(process.cwd(), 'data', 'reddit-accounts.json')
 interface RedditAccount {
   id: string
   username: string
-  passwordHash: string
+  email?: string
+  password: string
   createdAt: string
   updatedAt: string
   isActive: boolean
@@ -45,8 +46,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       )
     }
     
-    // Verify the password
-    const isValid = await bcrypt.compare(password, account.passwordHash)
+    // Verify the password (simple string comparison for now)
+    const isValid = password === account.password
     
     return NextResponse.json({
       success: true,

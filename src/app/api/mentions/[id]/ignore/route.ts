@@ -1,55 +1,85 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { readFileSync, existsSync, writeFileSync } from 'fs'
+import { join } from 'path'
 
-const prisma = new PrismaClient()
+interface RedditMention {
+  id: string
+  type: 'post' | 'comment'
+  subreddit: string
+  permalink: string
+  author: string
+  title?: string
+  body?: string
+  createdUtc: string
+  label: 'negative' | 'neutral' | 'positive'
+  confidence: number
+  score: number
+  ignored?: boolean
+  urgent?: boolean
+  numComments?: number
+  manualLabel?: string
+  manualScore?: number
+  taggedBy?: string
+  taggedAt?: string
+}
 
-export async function POST(
+interface RedditData {
+  mentions: RedditMention[]
+  stats?: any
+  lastUpdated: string
+}
+
+function readRedditData(): RedditData {
+  const dataFile = join(process.cwd(), 'data', 'reddit-data.json')
+  
+  if (!existsSync(dataFile)) {
+    return { mentions: [], lastUpdated: new Date().toISOString() }
+  }
+  
+  try {
+    return JSON.parse(readFileSync(dataFile, 'utf8'))
+  } catch (error) {
+    console.error('Error reading reddit data:', error)
+    return { mentions: [], lastUpdated: new Date().toISOString() }
+  }
+}
+
+function writeRedditData(data: RedditData): void {
+  const dataFile = join(process.cwd(), 'data', 'reddit-data.json')
+  writeFileSync(dataFile, JSON.stringify(data, null, 2))
+}
+
+export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
-    const body = await request.json()
-    const { ignored } = body
+    const { id } = await params
+    const { ignored } = await request.json()
 
-    if (typeof ignored !== 'boolean') {
-      return NextResponse.json(
-        { success: false, error: 'Invalid ignored value. Must be boolean' },
-        { status: 400 }
-      )
-    }
+    const redditData = readRedditData()
+    const mentionIndex = redditData.mentions.findIndex(m => m.id === id)
 
-    // Find the mention
-    const mention = await prisma.mention.findUnique({
-      where: { id }
-    })
-
-    if (!mention) {
+    if (mentionIndex === -1) {
       return NextResponse.json(
         { success: false, error: 'Mention not found' },
         { status: 404 }
       )
     }
 
-    // Update the mention in database
-    const updatedMention = await prisma.mention.update({
-      where: { id },
-      data: {
-        ignored: ignored,
-      }
-    })
+    // Update the mention
+    redditData.mentions[mentionIndex].ignored = ignored
+    redditData.lastUpdated = new Date().toISOString()
+
+    // Save updated data
+    writeRedditData(redditData)
 
     return NextResponse.json({
       success: true,
-      message: `Mention ${ignored ? 'ignored' : 'unignored'} successfully`,
-      data: {
-        id: updatedMention.id,
-        ignored: updatedMention.ignored,
-      },
+      data: redditData.mentions[mentionIndex],
     })
   } catch (error) {
-    console.error('Error toggling ignore:', error)
-
+    console.error('Error updating mention ignore status:', error)
     return NextResponse.json(
       {
         success: false,
@@ -57,7 +87,5 @@ export async function POST(
       },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }

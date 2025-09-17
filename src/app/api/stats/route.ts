@@ -1,66 +1,108 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { NextResponse } from 'next/server'
+import { readFileSync, existsSync } from 'fs'
+import { join } from 'path'
 
-const prisma = new PrismaClient()
+interface RedditMention {
+  id: string
+  type: 'post' | 'comment'
+  subreddit: string
+  permalink: string
+  author: string
+  title?: string
+  body?: string
+  createdUtc: string
+  label: 'negative' | 'neutral' | 'positive'
+  confidence: number
+  score: number
+  ignored?: boolean
+  urgent?: boolean
+  numComments?: number
+  manualLabel?: string
+  manualScore?: number
+  taggedBy?: string
+  taggedAt?: string
+}
 
-export async function GET(request: NextRequest) {
+interface RedditData {
+  mentions: RedditMention[]
+  stats?: any
+  lastUpdated: string
+}
+
+function readRedditData(): RedditData {
+  const dataFile = join(process.cwd(), 'data', 'reddit-data.json')
+  
+  if (!existsSync(dataFile)) {
+    return { mentions: [], lastUpdated: new Date().toISOString() }
+  }
+  
   try {
-    // Get counts by label (excluding ignored)
-    const countsByLabel = await prisma.mention.groupBy({
-      by: ['label'],
-      where: { ignored: false },
-      _count: { label: true }
-    })
+    return JSON.parse(readFileSync(dataFile, 'utf8'))
+  } catch (error) {
+    console.error('Error reading reddit data:', error)
+    return { mentions: [], lastUpdated: new Date().toISOString() }
+  }
+}
 
-    // Convert to object format
-    const labelCounts = countsByLabel.reduce((acc: any, item) => {
-      acc[item.label] = item._count.label
+export async function GET() {
+  try {
+    const redditData = readRedditData()
+    const mentions = redditData.mentions
+
+    // Calculate stats
+    const totalMentions = mentions.length
+    const activeMentions = mentions.filter(m => !m.ignored)
+    const ignoredMentions = mentions.filter(m => m.ignored)
+    const urgentMentions = mentions.filter(m => m.urgent)
+
+    // Sentiment breakdown
+    const sentimentCounts = activeMentions.reduce((acc, mention) => {
+      acc[mention.label] = (acc[mention.label] || 0) + 1
       return acc
-    }, {})
+    }, {} as Record<string, number>)
 
-    // Get average score (excluding ignored)
-    const avgScoreResult = await prisma.mention.aggregate({
-      where: { ignored: false },
-      _avg: { score: true }
-    })
-    const averageScore = Math.round(avgScoreResult._avg.score || 0)
-
-    // Get top 5 most negative mentions
-    const topNegative = await prisma.mention.findMany({
-      where: { 
-        ignored: false,
-        label: 'negative'
-      },
-      orderBy: { score: 'asc' },
-      take: 5
-    })
-
-    // Get counts by subreddit (excluding ignored)
-    const countsBySubreddit = await prisma.mention.groupBy({
-      by: ['subreddit'],
-      where: { ignored: false },
-      _count: { subreddit: true },
-      orderBy: { _count: { subreddit: 'desc' } }
-    })
-
-    // Convert to object format
-    const subredditCounts = countsBySubreddit.reduce((acc: any, item) => {
-      acc[item.subreddit] = item._count.subreddit
+    // Subreddit breakdown
+    const subredditCounts = activeMentions.reduce((acc, mention) => {
+      acc[mention.subreddit] = (acc[mention.subreddit] || 0) + 1
       return acc
-    }, {})
+    }, {} as Record<string, number>)
 
-    // Get total counts
-    const totalMentions = await prisma.mention.count({ where: { ignored: false } })
-    const totalIgnored = await prisma.mention.count({ where: { ignored: true } })
+    // Top subreddits
+    const topSubreddits = Object.entries(subredditCounts)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 10)
+      .map(([subreddit, count]) => ({ subreddit, count }))
+
+    // Average score
+    const averageScore = activeMentions.length > 0 
+      ? Math.round(activeMentions.reduce((sum, m) => sum + m.score, 0) / activeMentions.length)
+      : 0
+
+    // Recent activity (last 7 days)
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    const recentMentions = activeMentions.filter(m => 
+      new Date(m.createdUtc) > sevenDaysAgo
+    )
 
     const stats = {
-      countsByLabel: labelCounts,
+      total: totalMentions,
+      active: activeMentions.length,
+      ignored: ignoredMentions.length,
+      urgent: urgentMentions.length,
+      sentiment: {
+        negative: sentimentCounts.negative || 0,
+        neutral: sentimentCounts.neutral || 0,
+        positive: sentimentCounts.positive || 0,
+      },
       averageScore,
-      topNegative,
-      countsBySubreddit: subredditCounts,
-      totalMentions,
-      totalIgnored,
-      lastUpdated: new Date().toISOString(),
+      topSubreddits,
+      recentActivity: {
+        last7Days: recentMentions.length,
+        last24Hours: activeMentions.filter(m => 
+          new Date(m.createdUtc) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+        ).length,
+      },
+      lastUpdated: redditData.lastUpdated,
     }
 
     return NextResponse.json({
@@ -69,7 +111,6 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching stats:', error)
-
     return NextResponse.json(
       {
         success: false,
@@ -77,7 +118,5 @@ export async function GET(request: NextRequest) {
       },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }

@@ -342,3 +342,5 @@ async function fetchAndPopulateReddit() {
 }
 
 fetchAndPopulateReddit()
+
+
