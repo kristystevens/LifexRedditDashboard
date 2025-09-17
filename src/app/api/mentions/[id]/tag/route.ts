@@ -84,24 +84,6 @@ export async function POST(
     // Save updated data
     writeRedditData(redditData)
 
-    // Record learning data if this is a manual correction
-    if (taggedBy === 'user' && originalLabel !== label) {
-      try {
-        const text = `${mention.title || ''} ${mention.body || ''}`.trim()
-        await fetch(`${request.nextUrl.origin}/api/mentions/${id}/learn`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            originalLabel,
-            correctedLabel: label,
-            text
-          })
-        })
-      } catch (error) {
-        console.error('Error recording learning data:', error)
-        // Don't fail the main request if learning fails
-      }
-    }
 
     return NextResponse.json({
       success: true,
@@ -153,24 +135,6 @@ export async function PUT(
     // Save updated data
     writeRedditData(redditData)
 
-    // Record learning data if this is a manual correction
-    if (taggedBy === 'user' && originalLabel !== label) {
-      try {
-        const text = `${mention.title || ''} ${mention.body || ''}`.trim()
-        await fetch(`${request.nextUrl.origin}/api/mentions/${id}/learn`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            originalLabel,
-            correctedLabel: label,
-            text
-          })
-        })
-      } catch (error) {
-        console.error('Error recording learning data:', error)
-        // Don't fail the main request if learning fails
-      }
-    }
 
     return NextResponse.json({
       success: true,
