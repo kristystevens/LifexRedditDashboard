@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { getGlobalDatabase } from '@/lib/mongodb'
 
 interface RedditMention {
   id: string
@@ -127,32 +125,33 @@ export async function POST(request: NextRequest) {
     const mentions = await fetchRedditData()
     console.log(`📊 Found ${mentions.length} unique mentions`)
     
+    // Get MongoDB database
+    const db = await getGlobalDatabase()
+    
     // Clear existing data
-    await prisma.mention.deleteMany({})
+    await db.collection('mentions').deleteMany({})
     
     // Add new mentions
     let addedCount = 0
     for (const mention of mentions) {
       try {
-        await prisma.mention.create({
-          data: {
-            id: mention.id,
-            type: mention.type,
-            subreddit: mention.subreddit,
-            permalink: mention.permalink,
-            author: mention.author || null,
-            title: mention.title || null,
-            body: mention.body || null,
-            createdUtc: new Date(mention.createdUtc),
-            label: mention.label,
-            confidence: mention.confidence,
-            score: mention.score,
-            keywordsMatched: JSON.stringify(['lifex', 'lifex research', 'lifex phcs']),
-            ingestedAt: new Date(),
-            ignored: mention.ignored || false,
-            urgent: mention.urgent || false,
-            numComments: mention.numComments || 0,
-          }
+        await db.collection('mentions').insertOne({
+          id: mention.id,
+          type: mention.type,
+          subreddit: mention.subreddit,
+          permalink: mention.permalink,
+          author: mention.author || null,
+          title: mention.title || null,
+          body: mention.body || null,
+          createdUtc: new Date(mention.createdUtc),
+          label: mention.label,
+          confidence: mention.confidence,
+          score: mention.score,
+          keywordsMatched: JSON.stringify(['lifex', 'lifex research', 'lifex phcs']),
+          ingestedAt: new Date(),
+          ignored: mention.ignored || false,
+          urgent: mention.urgent || false,
+          numComments: mention.numComments || 0,
         })
         addedCount++
       } catch (error) {
@@ -161,14 +160,13 @@ export async function POST(request: NextRequest) {
     }
     
     // Get updated stats
-    const totalMentions = await prisma.mention.count()
-    const activeMentions = await prisma.mention.count({ where: { ignored: false } })
+    const totalMentions = await db.collection('mentions').countDocuments()
+    const activeMentions = await db.collection('mentions').countDocuments({ ignored: false })
     
-    const sentimentCounts = await prisma.mention.groupBy({
-      by: ['label'],
-      where: { ignored: false },
-      _count: { label: true }
-    })
+    const sentimentCounts = await db.collection('mentions').aggregate([
+      { $match: { ignored: false } },
+      { $group: { _id: '$label', count: { $sum: 1 } } }
+    ]).toArray()
     
     console.log(`✅ Successfully updated database with ${addedCount} mentions`)
     
@@ -179,7 +177,7 @@ export async function POST(request: NextRequest) {
         total: totalMentions,
         active: activeMentions,
         sentiment: sentimentCounts.reduce((acc, count) => {
-          acc[count.label] = count._count.label
+          acc[count._id] = count.count
           return acc
         }, {} as Record<string, number>)
       }
@@ -191,8 +189,6 @@ export async function POST(request: NextRequest) {
       { success: false, error: 'Failed to update database' },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }
 

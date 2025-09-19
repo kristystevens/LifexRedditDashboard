@@ -1,5 +1,27 @@
 import * as nodemailer from 'nodemailer'
-import { Mention } from '@prisma/client'
+
+export interface Mention {
+  id: string
+  type: string
+  subreddit: string
+  permalink: string
+  author?: string
+  title?: string
+  body?: string
+  createdUtc: Date
+  label: string
+  confidence: number
+  score: number
+  keywordsMatched: string
+  ingestedAt: Date
+  manualLabel?: string
+  manualScore?: number
+  taggedBy?: string
+  taggedAt?: Date
+  ignored: boolean
+  urgent: boolean
+  numComments: number
+}
 
 export interface EmailConfig {
   from: string
