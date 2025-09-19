@@ -14,7 +14,11 @@
       "score": 50,
       "ignored": false,
       "urgent": false,
-      "numComments": 2
+      "numComments": 2,
+      "manualLabel": "positive",
+      "manualScore": 0.8,
+      "taggedBy": "test-user",
+      "taggedAt": "2025-09-17T17:35:28.988Z"
     },
     {
       "id": "t3_1nf455f",
@@ -34,7 +38,7 @@
       "manualLabel": "negative",
       "manualScore": -0.8,
       "taggedBy": "user",
-      "taggedAt": "2025-09-17T13:55:17.470Z"
+      "taggedAt": "2025-09-18T15:15:41.279Z"
     },
     {
       "id": "t3_1naa9dp",
@@ -928,5 +932,5 @@
     "total": 57,
     "subreddits": 46
   },
-  "lastUpdated": "2025-09-17T13:55:27.208Z"
+  "lastUpdated": "2025-09-18T15:15:41.279Z"
 }

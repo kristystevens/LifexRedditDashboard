@@ -21,6 +21,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if Reddit API credentials are configured
+    if (!process.env.REDDIT_CLIENT_ID) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Reddit API credentials not configured. Please add REDDIT_CLIENT_ID and other Reddit environment variables to Vercel.' 
+        },
+        { status: 500 }
+      )
+    }
+
     console.log('Starting ingestion via API...')
     const result = await ingestService.runCompleteCycle()
 
