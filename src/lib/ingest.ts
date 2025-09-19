@@ -1,8 +1,30 @@
-import { prisma } from './db'
+import { getGlobalDatabase } from './mongodb'
 import { createRedditAPI } from './reddit'
 import { batchClassifySentiment, extractMatchedKeywords } from './classify'
 import { createEmailService } from './email'
-import { Mention } from '@prisma/client'
+
+export interface Mention {
+  id: string
+  type: string
+  subreddit: string
+  permalink: string
+  author?: string
+  title?: string
+  body?: string
+  createdUtc: Date
+  label: string
+  confidence: number
+  score: number
+  keywordsMatched: string
+  ingestedAt: Date
+  manualLabel?: string
+  manualScore?: number
+  taggedBy?: string
+  taggedAt?: Date
+  ignored: boolean
+  urgent: boolean
+  numComments: number
+}
 
 export interface IngestResult {
   newMentions: number
@@ -28,9 +50,11 @@ export class IngestService {
 
     try {
       // Get the latest mention timestamp
-      const latestMention = await prisma.mention.findFirst({
-        orderBy: { createdUtc: 'desc' },
-      })
+      const db = await getGlobalDatabase()
+      const latestMention = await db.collection('mentions').findOne(
+        {},
+        { sort: { createdUtc: -1 } }
+      )
 
       const sinceTimestamp = latestMention?.createdUtc 
         ? Math.floor(latestMention.createdUtc.getTime() / 1000)
@@ -111,12 +135,18 @@ export class IngestService {
       
       for (const mention of mentionsToSave) {
         try {
-          await prisma.mention.create({
-            data: mention,
-          })
+          const mentionWithTimestamp = {
+            ...mention,
+            ingestedAt: new Date(),
+            ignored: false,
+            urgent: false,
+            numComments: 0
+          }
+          
+          await db.collection('mentions').insertOne(mentionWithTimestamp)
           newMentions++
         } catch (error) {
-          if (error instanceof Error && error.message.includes('Unique constraint')) {
+          if (error instanceof Error && error.message.includes('duplicate key')) {
             // Duplicate mention, skip
             console.log(`Skipping duplicate mention: ${mention.id}`)
           } else {
@@ -129,14 +159,12 @@ export class IngestService {
 
       // Get top negative mentions for email report
       if (newMentions > 0) {
-        topNegative = await prisma.mention.findMany({
-          where: {
-            label: 'negative',
-            id: { in: mentionsToSave.map(m => m.id) },
-          },
-          orderBy: { score: 'asc' }, // Lower score = more negative
-          take: 10,
-        })
+        const negativeMentions = await db.collection('mentions').find({
+          label: 'negative',
+          id: { $in: mentionsToSave.map(m => m.id) },
+        }).sort({ score: 1 }).limit(10).toArray()
+        
+        topNegative = negativeMentions as Mention[]
       }
 
       console.log(`Ingestion completed: ${newMentions} new mentions saved`)

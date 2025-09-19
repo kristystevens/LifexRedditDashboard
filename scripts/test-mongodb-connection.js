@@ -1,76 +1,38 @@
 const { MongoClient } = require('mongodb');
-
-// Load environment variables
 require('dotenv').config({ path: '.env.local' });
 
 async function testMongoDBConnection() {
-  console.log('🔌 Testing MongoDB Atlas connection...\n');
+  console.log('🔌 Testing MongoDB Atlas connection...');
   
-  const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/lifex-reddit-monitor';
-  const dbName = process.env.MONGODB_DB_NAME || 'lifex-reddit-monitor';
-  
-  console.log('MongoDB URI:', uri ? 'Set' : 'Not set');
-  console.log('Database Name:', dbName);
-  
-  const client = new MongoClient(uri);
-  
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    console.error('❌ MONGODB_URI not found in environment variables');
+    return;
+  }
+
+  let client;
   try {
+    client = new MongoClient(uri);
     await client.connect();
-    console.log('✅ Connected to MongoDB Atlas successfully!\n');
+    console.log('✅ Connected to MongoDB Atlas successfully!');
     
-    const db = client.db(dbName);
+    const db = client.db(process.env.MONGODB_DB_NAME || 'lifex-reddit-monitor');
     
-    // Test basic operations
-    console.log('🧪 Testing database operations...');
+    // Test basic query
+    const count = await db.collection('mentions').countDocuments();
+    console.log(`📊 Database contains ${count} mentions`);
     
-    // Count documents in each collection
-    const mentionsCount = await db.collection('mentions').countDocuments();
-    const accountsCount = await db.collection('accounts').countDocuments();
-    const lifexCount = await db.collection('lifexMentions').countDocuments();
-    
-    console.log(`📊 Database contains:`);
-    console.log(`   Mentions: ${mentionsCount}`);
-    console.log(`   Accounts: ${accountsCount}`);
-    console.log(`   LifeX Mentions: ${lifexCount}`);
-    
-    // Test aggregation
-    if (mentionsCount > 0) {
-      const sentimentStats = await db.collection('mentions').aggregate([
-        { $group: { _id: '$label', count: { $sum: 1 } } },
-        { $sort: { count: -1 } }
-      ]).toArray();
-      
-      console.log('\n📈 Sentiment breakdown:');
-      sentimentStats.forEach(stat => {
-        console.log(`   ${stat._id}: ${stat.count}`);
-      });
-      
-      // Test filtering
-      const recentMentions = await db.collection('mentions').find({
-        createdUtc: {
-          $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days
-        }
-      }).limit(3).toArray();
-      
-      console.log(`\n📝 Recent mentions (last 7 days): ${recentMentions.length}`);
-      recentMentions.forEach((mention, index) => {
-        console.log(`   ${index + 1}. ${mention.title || mention.body?.substring(0, 50)}... (r/${mention.subreddit})`);
-      });
+    if (count > 0) {
+      const firstMention = await db.collection('mentions').findOne();
+      console.log(`📝 Sample mention: ${firstMention.title || firstMention.body?.substring(0, 50)}...`);
     }
-    
-    console.log('\n🎉 MongoDB Atlas connection and operations test completed successfully!');
     
   } catch (error) {
     console.error('❌ Connection failed:', error.message);
-    
-    if (error.message.includes('ENOTFOUND')) {
-      console.log('\n💡 Troubleshooting tips:');
-      console.log('   - Check your MongoDB Atlas cluster is running');
-      console.log('   - Verify your connection string is correct');
-      console.log('   - Make sure your IP is whitelisted in MongoDB Atlas');
-    }
   } finally {
-    await client.close();
+    if (client) {
+      await client.close();
+    }
   }
 }
 
