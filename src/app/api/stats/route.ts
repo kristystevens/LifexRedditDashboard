@@ -1,53 +1,19 @@
 import { NextResponse } from 'next/server'
-import { readFileSync, existsSync } from 'fs'
-import { join } from 'path'
+import { getGlobalDatabase } from '@/lib/mongodb'
 
-interface RedditMention {
-  id: string
-  type: 'post' | 'comment'
-  subreddit: string
-  permalink: string
-  author: string
-  title?: string
-  body?: string
-  createdUtc: string
-  label: 'negative' | 'neutral' | 'positive'
-  confidence: number
-  score: number
-  ignored?: boolean
-  urgent?: boolean
-  numComments?: number
-  manualLabel?: string
-  manualScore?: number
-  taggedBy?: string
-  taggedAt?: string
-}
-
-interface RedditData {
-  mentions: RedditMention[]
-  stats?: any
-  lastUpdated: string
-}
-
-function readRedditData(): RedditData {
-  const dataFile = join(process.cwd(), 'data', 'reddit-data.json')
-  
-  if (!existsSync(dataFile)) {
-    return { mentions: [], lastUpdated: new Date().toISOString() }
-  }
-  
+async function getMentionsFromDatabase() {
   try {
-    return JSON.parse(readFileSync(dataFile, 'utf8'))
+    const db = await getGlobalDatabase()
+    return await db.collection('mentions').find({}).sort({ createdUtc: -1 }).toArray()
   } catch (error) {
-    console.error('Error reading reddit data:', error)
-    return { mentions: [], lastUpdated: new Date().toISOString() }
+    console.error('Error reading from MongoDB:', error)
+    return []
   }
 }
 
 export async function GET() {
   try {
-    const redditData = readRedditData()
-    const mentions = redditData.mentions
+    const mentions = await getMentionsFromDatabase()
 
     // Calculate stats
     const totalMentions = mentions.length
@@ -102,7 +68,7 @@ export async function GET() {
           new Date(m.createdUtc) > new Date(Date.now() - 24 * 60 * 60 * 1000)
         ).length,
       },
-      lastUpdated: redditData.lastUpdated,
+      lastUpdated: new Date().toISOString(),
     }
 
     return NextResponse.json({
