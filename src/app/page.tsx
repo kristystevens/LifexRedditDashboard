@@ -8,6 +8,7 @@ import RedditAccountsPage from '@/components/RedditAccountsPage'
 import AnalyticsPage from '@/components/AnalyticsPage'
 import RecentLifexMentions from '@/components/RecentLifexMentions'
 import CommentsDropdown from '@/components/CommentsDropdown'
+import ApplicationForm from '@/components/ApplicationForm'
 
 interface Stats {
   total: number
@@ -35,6 +36,16 @@ interface Mention {
   numComments: number
   ignored: boolean
   urgent: boolean
+  enhancedSentiment?: {
+    label: string
+    confidence: number
+    score: number
+    reasoning: string
+    commentCount: number
+    weightedScore: number
+  }
+  commentCount?: number
+  lastAnalyzed?: string
 }
 
 interface DataResponse {
@@ -60,6 +71,8 @@ export default function Home() {
   })
   const [allMentions, setAllMentions] = useState<Mention[]>([])
   const [filteredMentions, setFilteredMentions] = useState<Mention[]>([])
+  const [enhancedAnalysis, setEnhancedAnalysis] = useState<any>(null)
+  const [analyzing, setAnalyzing] = useState(false)
 
   const fetchData = async () => {
     try {
@@ -107,6 +120,43 @@ export default function Home() {
   const handleRefresh = () => {
     setRefreshing(true)
     fetchData()
+  }
+
+  const triggerEnhancedAnalysis = async () => {
+    setAnalyzing(true)
+    try {
+      const response = await fetch('/api/enhanced-analysis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          analyzeAll: true
+        }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log('Enhanced analysis started:', result)
+        
+        // Wait a bit and then fetch the results
+        setTimeout(async () => {
+          try {
+            const analysisResponse = await fetch('/api/enhanced-analysis')
+            if (analysisResponse.ok) {
+              const analysisData = await analysisResponse.json()
+              setEnhancedAnalysis(analysisData.data)
+            }
+          } catch (error) {
+            console.error('Error fetching analysis results:', error)
+          }
+        }, 5000)
+      }
+    } catch (error) {
+      console.error('Error starting enhanced analysis:', error)
+    } finally {
+      setAnalyzing(false)
+    }
   }
 
   const applyFilters = (mentionsToFilter: Mention[], currentFilters: typeof filters) => {
@@ -282,6 +332,48 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <main className="pt-6 pb-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Main Call to Action Hero Section */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-xl p-8 mb-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Join the LifeX Community
+            </h2>
+            <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
+              Be part of an exclusive community tracking LifeX mentions and insights across Reddit
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a
+                href="#apply"
+                onClick={(e) => {
+                  e.preventDefault()
+                  document.getElementById('apply')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }}
+                className="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 min-w-[200px]"
+              >
+                Apply Now
+              </a>
+              <a
+                href="#vip"
+                onClick={(e) => {
+                  e.preventDefault()
+                  document.getElementById('vip')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }}
+                className="bg-yellow-400 text-gray-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-yellow-300 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 min-w-[200px]"
+              >
+                Apply to Join Our VIP Community
+              </a>
+            </div>
+          </div>
+
+          {/* Application Forms Section */}
+          <div className="mb-12 space-y-12">
+            <div id="apply" className="scroll-mt-8">
+              <ApplicationForm isVIP={false} />
+            </div>
+            <div id="vip" className="scroll-mt-8">
+              <ApplicationForm isVIP={true} />
+            </div>
+          </div>
+
           {/* Header */}
           <div className="text-center mb-6">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">LifeX Reddit Monitor</h1>
@@ -348,6 +440,69 @@ export default function Home() {
               </nav>
             </div>
           </div>
+
+          {/* Enhanced Sentiment Analysis Section */}
+          {activeTab === 'dashboard' && (
+            <div className="mb-8 bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Enhanced Sentiment Analysis</h2>
+                <button
+                  onClick={triggerEnhancedAnalysis}
+                  disabled={analyzing}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${analyzing ? 'animate-spin' : ''}`} />
+                  {analyzing ? 'Analyzing...' : 'Run Enhanced Analysis'}
+                </button>
+              </div>
+              
+              {enhancedAnalysis && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="bg-gray-50 p-4 rounded">
+                    <h3 className="font-medium text-gray-900 mb-2">Analysis Statistics</h3>
+                    <div className="space-y-1 text-sm">
+                      <div>Total Posts: {enhancedAnalysis.statistics.totalPosts}</div>
+                      <div>Analyzed: {enhancedAnalysis.statistics.analyzedCount}</div>
+                      <div>Pending: {enhancedAnalysis.statistics.pendingCount}</div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-50 p-4 rounded">
+                    <h3 className="font-medium text-gray-900 mb-2">Enhanced Sentiment Breakdown</h3>
+                    <div className="space-y-1 text-sm">
+                      {Object.entries(enhancedAnalysis.statistics.sentimentBreakdown).map(([sentiment, count]) => (
+                        <div key={sentiment} className="flex justify-between">
+                          <span className="capitalize">{sentiment}:</span>
+                          <span className="font-medium">{count as number}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-50 p-4 rounded">
+                    <h3 className="font-medium text-gray-900 mb-2">Recent Analysis</h3>
+                    <div className="text-sm text-gray-600">
+                      {enhancedAnalysis.analyzedPosts.length > 0 ? (
+                        <div>
+                          Latest: {enhancedAnalysis.analyzedPosts[0].title?.substring(0, 50)}...
+                        </div>
+                      ) : (
+                        <div>No analyses yet</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div className="text-sm text-gray-600">
+                <p>
+                  Enhanced sentiment analysis uses AI to analyze both posts and their comments, 
+                  providing more accurate sentiment scores by considering Reddit upvotes/downvotes 
+                  and comment sentiment patterns.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Tab Content */}
           {activeTab === 'dashboard' && (
@@ -481,9 +636,26 @@ export default function Home() {
                                 URGENT
                               </span>
                             )}
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getSentimentColor(mention.label)}`}>
-                              {mention.label}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${getSentimentColor(mention.label)}`}>
+                                {mention.label}
+                              </span>
+                              {mention.enhancedSentiment && (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs text-gray-500">→</span>
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    mention.enhancedSentiment.label === 'positive' ? 'text-green-600 bg-green-50' :
+                                    mention.enhancedSentiment.label === 'negative' ? 'text-red-600 bg-red-50' :
+                                    'text-gray-600 bg-gray-50'
+                                  }`}>
+                                    {mention.enhancedSentiment.label} ({mention.enhancedSentiment.score})
+                                  </span>
+                                  <span className="text-xs text-gray-400">
+                                    {mention.commentCount ? `${mention.commentCount} comments` : ''}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
                             <a
                               href={`https://reddit.com/r/${mention.subreddit}`}
                               target="_blank"

@@ -1,6 +1,7 @@
 import { getGlobalDatabase } from './mongodb'
 import { createRedditAPI } from './reddit'
 import { batchClassifySentiment, extractMatchedKeywords } from './classify'
+import { enhancedSentimentAnalyzer } from './enhanced-sentiment'
 import { createEmailService } from './email'
 
 export interface Mention {
@@ -193,19 +194,17 @@ export class IngestService {
 
     try {
       // Get all new mentions for the CSV attachment
-      const newMentions = await prisma.mention.findMany({
-        where: {
-          ingestedAt: {
-            gte: new Date(Date.now() - 10 * 60 * 1000), // Last 10 minutes
-          },
+      const db = await getGlobalDatabase()
+      const newMentions = await db.collection('mentions').find({
+        ingestedAt: {
+          $gte: new Date(Date.now() - 10 * 60 * 1000), // Last 10 minutes
         },
-        orderBy: { createdUtc: 'desc' },
-      })
+      }).sort({ createdUtc: -1 }).toArray()
 
       await this.emailService.sendMentionsReport({
         newCount: result.newMentions,
         topNegative: result.topNegative,
-        allMentions: newMentions,
+        allMentions: newMentions as Mention[],
       })
     } catch (error) {
       console.error('Failed to send email report:', error)
@@ -220,6 +219,81 @@ export class IngestService {
     await this.sendReportIfNeeded(result)
     return result
   }
+
+  /**
+   * Analyze threads with enhanced sentiment analysis
+   */
+  async analyzeThreadsWithEnhancedSentiment(postIds: string[]): Promise<void> {
+    console.log(`🔍 Starting enhanced sentiment analysis for ${postIds.length} threads`)
+    
+    const db = await getGlobalDatabase()
+    
+    for (const postId of postIds) {
+      try {
+        // Check if we already have an analysis for this post
+        const existingAnalysis = await db.collection('thread_analyses').findOne({ postId })
+        if (existingAnalysis) {
+          console.log(`⏭️  Skipping ${postId} - already analyzed`)
+          continue
+        }
+
+        // Get the post from our mentions
+        const mention = await db.collection('mentions').findOne({ 
+          id: postId,
+          type: 'post'
+        })
+
+        if (!mention) {
+          console.log(`⚠️  Post ${postId} not found in mentions`)
+          continue
+        }
+
+        console.log(`📊 Analyzing thread: ${mention.title}`)
+
+        // Fetch comments from Reddit
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/analyze-thread`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            postId: postId,
+            permalink: mention.permalink,
+          }),
+        })
+
+        if (response.ok) {
+          const result = await response.json()
+          console.log(`✅ Enhanced analysis completed for ${postId}`)
+          
+          // Update the mention with enhanced sentiment data
+          await db.collection('mentions').updateOne(
+            { id: postId },
+            {
+              $set: {
+                enhancedSentiment: result.data.analysis.aggregatedSentiment,
+                commentCount: result.data.commentCount,
+                lastAnalyzed: new Date(),
+              }
+            }
+          )
+        } else {
+          console.error(`❌ Failed to analyze thread ${postId}:`, await response.text())
+        }
+
+        // Rate limiting delay
+        await new Promise(resolve => setTimeout(resolve, 2000))
+
+      } catch (error) {
+        console.error(`❌ Error analyzing thread ${postId}:`, error)
+      }
+    }
+
+    console.log(`🎉 Enhanced sentiment analysis completed`)
+  }
 }
 
 export const ingestService = new IngestService()
+
+// Export the runIngestion function for easy access
+export const runIngestion = () => ingestService.runIngestion()

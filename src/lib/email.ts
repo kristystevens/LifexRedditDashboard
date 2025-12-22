@@ -185,6 +185,53 @@ export class EmailService {
   }
 
   /**
+   * Send error notification email
+   */
+  async sendErrorNotification(error: Error, context: string = 'System'): Promise<void> {
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>LifeX Monitor Error</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h1 style="color: #dc2626;">LifeX Monitor Error Alert</h1>
+            
+            <div style="background-color: #fef2f2; padding: 15px; border-radius: 5px; border-left: 4px solid #dc2626;">
+              <h2 style="margin-top: 0; color: #dc2626;">Error Details</h2>
+              <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+              <p><strong>Context:</strong> ${context}</p>
+              <p><strong>Error:</strong> ${error.message}</p>
+              <p><strong>Stack:</strong> <pre style="background: #f3f4f6; padding: 10px; border-radius: 3px; overflow-x: auto;">${error.stack}</pre></p>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background-color: #f9fafb; border-radius: 5px;">
+              <p><strong>Action Required:</strong> Please check the LifeX monitoring system and resolve the issue.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+
+    const mailOptions = {
+      from: this.config.from,
+      to: this.config.to,
+      subject: `LifeX Monitor Error Alert - ${context}`,
+      html,
+    }
+
+    try {
+      await this.transporter.sendMail(mailOptions)
+      console.log('Error notification email sent successfully')
+    } catch (error) {
+      console.error('Failed to send error notification email:', error)
+      throw error
+    }
+  }
+
+  /**
    * Test email configuration
    */
   async testConnection(): Promise<boolean> {
@@ -217,4 +264,10 @@ export function createEmailService(): EmailService {
   })
 
   return new EmailService(config)
+}
+
+// Export the sendErrorNotification function for easy access
+export const sendErrorNotification = async (error: Error, context: string = 'System') => {
+  const emailService = createEmailService()
+  return emailService.sendErrorNotification(error, context)
 }
